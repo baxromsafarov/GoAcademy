@@ -45,6 +45,7 @@ export const ru: Resources = {
     empty: "Статьи не найдены.",
     read: "Прочитано",
     markRead: "Отметить прочитанным",
+    readingTime: "{{min}} мин чтения",
     openInSandbox: "Открыть в песочнице",
     sandboxSoon: "Песочница скоро появится.",
   },

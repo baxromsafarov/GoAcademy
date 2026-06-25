@@ -45,6 +45,7 @@ export const uz: Resources = {
     empty: "Maqolalar topilmadi.",
     read: "Oʻqilgan",
     markRead: "Oʻqilgan deb belgilash",
+    readingTime: "{{min}} daqiqa oʻqish",
     openInSandbox: "Sinov maydonida ochish",
     sandboxSoon: "Sinov maydoni tez orada ishga tushadi.",
   },

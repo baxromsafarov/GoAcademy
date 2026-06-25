@@ -43,6 +43,7 @@ export const en = {
     empty: "No articles found.",
     read: "Read",
     markRead: "Mark as read",
+    readingTime: "{{min}} min read",
     openInSandbox: "Open in sandbox",
     sandboxSoon: "The sandbox is coming soon.",
   },

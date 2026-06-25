@@ -45,6 +45,7 @@ export const ja: Resources = {
     empty: "記事が見つかりません。",
     read: "読了",
     markRead: "読了にする",
+    readingTime: "読了 {{min}} 分",
     openInSandbox: "サンドボックスで開く",
     sandboxSoon: "サンドボックスは近日公開予定です。",
   },
