@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Upload } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useUpdateProfile, useUploadAvatar } from "@/lib/queries"
-import { applyProfileLocale } from "@/i18n"
+import { setLang, type Lang } from "@/i18n"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -38,7 +38,7 @@ export function Profile() {
     update.mutate(form, {
       onSuccess: (updated) => {
         setUser(updated)
-        applyProfileLocale(updated.locale)
+        setLang(updated.locale as Lang) // saving the profile is an explicit language choice
         setSaved(true)
       },
     })

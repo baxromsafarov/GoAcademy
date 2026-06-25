@@ -37,7 +37,11 @@ export function setLang(lang: Lang) {
   localStorage.setItem("lang", lang)
 }
 
-/** applyProfileLocale applies a user's profile locale if it is supported (login). */
+/** applyProfileLocale applies a user's profile locale on session bootstrap/login,
+ * but only when the user has not explicitly chosen a UI language yet. A manual
+ * choice from the language switcher (persisted under "lang") always wins, so it
+ * survives a page reload. */
 export function applyProfileLocale(locale: string) {
+  if (localStorage.getItem("lang")) return
   if (isLang(locale)) setLang(locale)
 }
