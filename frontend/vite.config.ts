@@ -21,4 +21,12 @@ export default defineConfig({
       '/static': 'http://localhost:8080',
     },
   },
+  // `vite preview` (serving the production build) proxies the same way, so the
+  // built frontend can run against the backend without CORS in a local deploy.
+  preview: {
+    proxy: {
+      '/api': 'http://localhost:8080',
+      '/static': 'http://localhost:8080',
+    },
+  },
 })

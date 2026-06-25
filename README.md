@@ -68,6 +68,21 @@ docker compose -f deploy/docker-compose.yml up -d --build
 Остановить: `docker compose -f deploy/docker-compose.yml down` (данные БД переживают в томе
 `goacademy-postgres-data`; добавьте `-v` чтобы удалить и их).
 
+### Локальный запуск с песочницей (Windows, одним скриптом)
+
+Песочница `/sandbox` и онлайн-судья исполняют Go в Docker, поэтому backend нужно
+запускать **нативно** (с Go-тулчейном и доступом к Docker). Скрипт поднимает всё —
+Postgres (Docker), миграции, **наполнение контентом**, backend (:8080, песочница
+включена) и frontend (:5173):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File deploy\start-local.ps1
+# затем открыть http://localhost:5173
+```
+
+Наполнить/обновить контент отдельно: `make seed` (или `go -C backend run ./cmd/seed`) —
+учебный роадмап Go на 4 языках (видео/статьи/квизы/задачи/проекты), идемпотентно.
+
 ### Песочница и судья (опционально)
 
 Исполнение Go-кода (`/sandbox` и онлайн-судья) **выключено по умолчанию** (`SANDBOX_ENABLED=false`):
