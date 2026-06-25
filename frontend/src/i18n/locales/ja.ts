@@ -220,6 +220,7 @@ export const ja: Resources = {
     badges: "バッジ",
     noBadges: "バッジはまだありません。",
     activity: "アクティビティ",
+    activityCount: "{{n}} 件のアクティビティ",
   },
   auth: {
     signIn: "ログイン",

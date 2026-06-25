@@ -218,6 +218,7 @@ export const en = {
     badges: "Badges",
     noBadges: "No badges yet.",
     activity: "Activity",
+    activityCount: "{{n}} activities",
   },
   auth: {
     signIn: "Sign in",

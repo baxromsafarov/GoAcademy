@@ -220,6 +220,7 @@ export const uz: Resources = {
     badges: "Nishonlar",
     noBadges: "Hozircha nishonlar yoʻq.",
     activity: "Faollik",
+    activityCount: "{{n}} ta faollik",
   },
   auth: {
     signIn: "Kirish",

@@ -220,6 +220,7 @@ export const ru: Resources = {
     badges: "Бейджи",
     noBadges: "Пока нет бейджей.",
     activity: "Активность",
+    activityCount: "активностей: {{n}}",
   },
   auth: {
     signIn: "Войти",
