@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Search } from "lucide-react"
 import { useGlossary } from "@/lib/queries"
+import { useContentLanguage } from "@/lib/useContentLanguage"
 
 const langs = ["ru", "en", "uz", "ja"]
 const selectClass =
@@ -10,7 +11,7 @@ const selectClass =
 export function Glossary() {
   const { t } = useTranslation()
   const [q, setQ] = useState("")
-  const [language, setLanguage] = useState("")
+  const [language, setLanguage] = useContentLanguage()
   const { data, isPending, isError } = useGlossary({
     q: q || undefined,
     language: language || undefined,

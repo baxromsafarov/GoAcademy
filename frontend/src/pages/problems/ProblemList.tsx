@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useProblems, type ProblemFilters } from "@/lib/queries"
+import { useContentLanguage } from "@/lib/useContentLanguage"
 
 const difficulties = ["beginner", "intermediate", "advanced"]
 const langs = ["ru", "en", "uz", "ja"]
@@ -11,7 +12,8 @@ const selectClass =
 export function ProblemList() {
   const { t } = useTranslation()
   const [filters, setFilters] = useState<ProblemFilters>({})
-  const { data, isPending, isError } = useProblems(filters)
+  const [language, setLanguage] = useContentLanguage()
+  const { data, isPending, isError } = useProblems({ ...filters, language: language || undefined })
 
   function set(key: keyof ProblemFilters, value: string) {
     setFilters((f) => ({ ...f, [key]: value || undefined }))
@@ -38,8 +40,8 @@ export function ProblemList() {
           ))}
         </select>
         <select
-          value={filters.language ?? ""}
-          onChange={(e) => set("language", e.target.value)}
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
           className={selectClass}
           aria-label={t("videos.filterLanguage")}
         >

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useVideos, type VideoFilters } from "@/lib/queries"
+import { useContentLanguage } from "@/lib/useContentLanguage"
 
 const difficulties = ["beginner", "intermediate", "advanced"]
 const langs = ["ru", "en", "uz", "ja"]
@@ -11,7 +12,8 @@ const selectClass =
 export function VideoList() {
   const { t } = useTranslation()
   const [filters, setFilters] = useState<VideoFilters>({})
-  const { data, isPending, isError } = useVideos(filters)
+  const [language, setLanguage] = useContentLanguage()
+  const { data, isPending, isError } = useVideos({ ...filters, language: language || undefined })
 
   function set(key: keyof VideoFilters, value: string) {
     setFilters((f) => ({ ...f, [key]: value || undefined }))
@@ -36,8 +38,8 @@ export function VideoList() {
           ))}
         </select>
         <select
-          value={filters.language ?? ""}
-          onChange={(e) => set("language", e.target.value)}
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
           className={selectClass}
           aria-label={t("videos.filterLanguage")}
         >

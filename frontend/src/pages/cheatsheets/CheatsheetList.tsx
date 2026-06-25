@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Search } from "lucide-react"
 import { useCheatsheets, type CheatsheetFilters } from "@/lib/queries"
+import { useContentLanguage } from "@/lib/useContentLanguage"
 
 const langs = ["ru", "en", "uz", "ja"]
 const selectClass =
@@ -11,7 +12,8 @@ const selectClass =
 export function CheatsheetList() {
   const { t } = useTranslation()
   const [filters, setFilters] = useState<CheatsheetFilters>({})
-  const { data, isPending, isError } = useCheatsheets(filters)
+  const [language, setLanguage] = useContentLanguage()
+  const { data, isPending, isError } = useCheatsheets({ ...filters, language: language || undefined })
 
   function set(key: keyof CheatsheetFilters, value: string) {
     setFilters((f) => ({ ...f, [key]: value || undefined }))
@@ -32,8 +34,8 @@ export function CheatsheetList() {
           />
         </div>
         <select
-          value={filters.language ?? ""}
-          onChange={(e) => set("language", e.target.value)}
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
           className={selectClass}
           aria-label={t("videos.filterLanguage")}
         >
