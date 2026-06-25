@@ -114,6 +114,8 @@ export const en = {
     progress: "Progress",
     completedOf: "{{completed}} / {{total}} completed",
     program: "Program",
+    course: "Course",
+    lesson: "Lesson {{n}}",
     type: {
       video: "Video",
       article: "Article",

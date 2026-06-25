@@ -116,6 +116,8 @@ export const uz: Resources = {
     progress: "Jarayon",
     completedOf: "{{total}} dan {{completed}} tasi tugallandi",
     program: "Dastur",
+    course: "Kurs",
+    lesson: "{{n}}-dars",
     type: {
       video: "Video",
       article: "Maqola",

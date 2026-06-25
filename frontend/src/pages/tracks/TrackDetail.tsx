@@ -4,15 +4,16 @@ import {
   ArrowLeft,
   CheckCircle2,
   ChevronRight,
-  Circle,
   Code2,
   FileText,
   FolderKanban,
   HelpCircle,
+  Route,
   Video,
 } from "lucide-react"
 import { useTrack, useTrackProgress } from "@/lib/queries"
 import type { TrackContentType } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 const typeIcon: Record<TrackContentType, typeof Video> = {
   video: Video,
@@ -44,13 +45,20 @@ export function TrackDetail() {
   const progress = useTrackProgress(id)
 
   const completedByKey = new Map<string, boolean>()
-  progress.data?.items.forEach((it) => completedByKey.set(`${it.content_type}:${it.content_id}`, it.completed))
+  progress.data?.items.forEach((it) =>
+    completedByKey.set(`${it.content_type}:${it.content_id}`, it.completed),
+  )
+
+  // The next not-yet-done item is highlighted as the lesson to resume.
+  const firstUndone = track.data?.items.find(
+    (it) => !(completedByKey.get(`${it.content_type}:${it.content_id}`) ?? false),
+  )
 
   return (
     <div className="flex flex-col gap-4">
       <Link
         to="/tracks"
-        className="flex w-fit items-center gap-1 text-sm text-muted-foreground hover:underline"
+        className="flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" /> {t("common.back")}
       </Link>
@@ -59,67 +67,118 @@ export function TrackDetail() {
       {track.isError && <p className="text-sm text-red-500">{t("common.error")}</p>}
 
       {track.data && (
-        <div className="flex flex-col gap-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">{track.data.title}</h1>
-              {track.data.description && (
-                <p className="mt-1 text-muted-foreground">{track.data.description}</p>
-              )}
-              <div className="mt-2 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
-                <span className="rounded border px-1.5 py-0.5">{t(`difficulty.${track.data.level}`)}</span>
-                <span className="rounded border px-1.5 py-0.5">{track.data.language.toUpperCase()}</span>
-              </div>
+        <div className="flex flex-col gap-6">
+          {/* Course header */}
+          <div className="rounded-2xl border bg-gradient-to-br from-amber-500/10 via-card to-card p-6">
+            <div className="mb-2 flex items-center gap-1.5 text-xs font-medium tracking-wide text-amber-500 uppercase">
+              <Route className="size-3.5" /> {t("tracks.course")}
             </div>
-            {progress.data?.track_complete && (
-              <span className="flex shrink-0 items-center gap-1 text-sm text-green-600 dark:text-green-400">
-                <CheckCircle2 className="size-5" /> {t("tracks.complete")}
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{track.data.title}</h1>
+              {progress.data?.track_complete && (
+                <span className="flex shrink-0 items-center gap-1 text-sm font-medium text-green-600 dark:text-green-400">
+                  <CheckCircle2 className="size-5" /> {t("tracks.complete")}
+                </span>
+              )}
+            </div>
+            {track.data.description && (
+              <p className="mt-2 max-w-2xl text-muted-foreground">{track.data.description}</p>
+            )}
+            <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+              <span className="rounded-md border px-1.5 py-0.5">
+                {t(`difficulty.${track.data.level}`)}
               </span>
+              <span className="rounded-md border px-1.5 py-0.5">
+                {track.data.language.toUpperCase()}
+              </span>
+            </div>
+
+            {/* Segmented sprint progress — one segment per lesson. */}
+            {progress.data && (
+              <div className="mt-5 flex flex-col gap-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{t("tracks.progress")}</span>
+                  <span className="font-medium">
+                    {t("tracks.completedOf", {
+                      completed: progress.data.completed,
+                      total: progress.data.total,
+                    })}
+                  </span>
+                </div>
+                <div className="flex gap-1">
+                  {track.data.items.map((item) => {
+                    const done =
+                      completedByKey.get(`${item.content_type}:${item.content_id}`) ?? false
+                    return (
+                      <div
+                        key={`${item.content_type}:${item.content_id}`}
+                        className={cn(
+                          "h-1.5 flex-1 rounded-full transition-colors",
+                          done ? "bg-primary" : "bg-muted",
+                        )}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
             )}
           </div>
 
-          {progress.data && (
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{t("tracks.progress")}</span>
-                <span className="font-medium">
-                  {t("tracks.completedOf", {
-                    completed: progress.data.completed,
-                    total: progress.data.total,
-                  })}
-                </span>
-              </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary transition-all"
-                  style={{ width: `${progress.data.percent}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          <section className="flex flex-col gap-2">
+          {/* Lesson path */}
+          <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold">{t("tracks.program")}</h2>
-            <ol className="flex flex-col gap-2">
-              {track.data.items.map((item) => {
+            <ol className="relative flex flex-col">
+              {track.data.items.map((item, idx) => {
                 const Icon = typeIcon[item.content_type]
-                const done = completedByKey.get(`${item.content_type}:${item.content_id}`) ?? false
+                const key = `${item.content_type}:${item.content_id}`
+                const done = completedByKey.get(key) ?? false
+                const isNext = firstUndone === item
+                const isLast = idx === track.data.items.length - 1
                 return (
-                  <li key={`${item.content_type}:${item.content_id}`}>
+                  <li key={key} className="relative flex gap-4">
+                    {/* Connector rail + node */}
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={cn(
+                          "z-10 flex size-9 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                          done
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : isNext
+                              ? "border-primary bg-card text-primary"
+                              : "border-muted bg-card text-muted-foreground",
+                        )}
+                      >
+                        {done ? (
+                          <CheckCircle2 className="size-5" />
+                        ) : (
+                          <span className="text-sm font-semibold">{item.position}</span>
+                        )}
+                      </div>
+                      {!isLast && (
+                        <div
+                          className={cn("w-0.5 flex-1", done ? "bg-primary/40" : "bg-border")}
+                        />
+                      )}
+                    </div>
+
+                    {/* Lesson card */}
                     <Link
                       to={itemPath(item.content_type, item.content_id)}
-                      className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:border-primary"
-                    >
-                      {done ? (
-                        <CheckCircle2 className="size-5 shrink-0 text-green-600 dark:text-green-400" />
-                      ) : (
-                        <Circle className="size-5 shrink-0 text-muted-foreground" />
+                      className={cn(
+                        "group mb-3 flex flex-1 items-center gap-3 rounded-xl border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:shadow-sm",
+                        isNext && "border-primary/50 ring-1 ring-primary/20",
                       )}
-                      <Icon className="size-4 shrink-0 text-muted-foreground" />
-                      <span className="flex-1 text-sm font-medium">
-                        {item.position}. {t(`tracks.type.${item.content_type}`)}
-                      </span>
-                      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                    >
+                      <Icon className="size-5 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold">
+                          {t("tracks.lesson", { n: item.position })}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {t(`tracks.type.${item.content_type}`)}
+                        </div>
+                      </div>
+                      <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
                     </Link>
                   </li>
                 )

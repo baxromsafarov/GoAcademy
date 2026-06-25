@@ -116,6 +116,8 @@ export const ja: Resources = {
     progress: "進捗",
     completedOf: "{{total}} 件中 {{completed}} 件完了",
     program: "プログラム",
+    course: "コース",
+    lesson: "レッスン {{n}}",
     type: {
       video: "動画",
       article: "記事",

@@ -116,6 +116,8 @@ export const ru: Resources = {
     progress: "Прогресс",
     completedOf: "Пройдено {{completed}} из {{total}}",
     program: "Программа",
+    course: "Курс",
+    lesson: "Урок {{n}}",
     type: {
       video: "Видео",
       article: "Статья",
