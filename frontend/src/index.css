@@ -24,18 +24,18 @@
 
 .dark {
   color-scheme: dark;
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.65 0.18 264);
-  --primary-foreground: oklch(0.145 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.3 0.04 264);
+  --background: oklch(0.17 0.005 264);
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.214 0.006 264);
+  --card-foreground: oklch(0.96 0 0);
+  --primary: oklch(0.68 0.17 264);
+  --primary-foreground: oklch(0.15 0 0);
+  --muted: oklch(0.26 0.006 264);
+  --muted-foreground: oklch(0.72 0.01 264);
+  --accent: oklch(0.3 0.03 264);
   --accent-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 12%);
-  --ring: oklch(0.65 0.18 264);
+  --border: oklch(1 0 0 / 10%);
+  --ring: oklch(0.68 0.17 264);
 }
 
 @theme inline {
@@ -62,6 +62,30 @@
     margin: 0;
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family:
+      "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 {
+    line-height: 1.25;
+    letter-spacing: -0.012em;
+  }
+  /* Subtle, theme-aware scrollbars (Practicum-like restraint). */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-muted) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-muted);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
   }
 }

@@ -42,7 +42,7 @@ export function Layout() {
 
   return (
     <div className="flex min-h-svh flex-col">
-      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-card px-4">
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-card/80 px-4 backdrop-blur">
         <button
           className="rounded p-2 hover:bg-accent"
           onClick={toggleSidebar}
@@ -113,8 +113,10 @@ export function Layout() {
           </nav>
         </aside>
 
-        <main className="flex-1 p-6">
-          <Outlet />
+        <main className="flex-1 overflow-x-hidden">
+          <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-8 md:py-8">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

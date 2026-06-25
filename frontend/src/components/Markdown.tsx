@@ -59,7 +59,10 @@ export function Markdown({ children }: { children: string }) {
     ul: (props) => <ul className="my-3 list-disc space-y-1 pl-6" {...props} />,
     ol: (props) => <ol className="my-3 list-decimal space-y-1 pl-6" {...props} />,
     blockquote: (props) => (
-      <blockquote className="my-4 border-l-2 pl-4 text-muted-foreground italic" {...props} />
+      <blockquote
+        className="my-5 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-[0.95em] [&>p]:my-1"
+        {...props}
+      />
     ),
     hr: (props) => <hr className="my-6 border-t" {...props} />,
     img: ({ alt, ...props }) => (
