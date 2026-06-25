@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { ListChecks } from "lucide-react"
 import { useQuizzes, type QuizFilters } from "@/lib/queries"
 import { useContentLanguage } from "@/lib/useContentLanguage"
+import { ContentCard, Meta } from "@/components/ContentCard"
 
 const difficulties = ["beginner", "intermediate", "advanced"]
 const langs = ["ru", "en", "uz", "ja"]
@@ -57,9 +58,9 @@ export function QuizList() {
       </div>
 
       {isPending && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-lg border bg-card" />
+            <div key={i} className="h-64 animate-pulse rounded-xl border bg-card" />
           ))}
         </div>
       )}
@@ -68,23 +69,23 @@ export function QuizList() {
         (data.items.length === 0 ? (
           <p className="text-muted-foreground">{t("quizzes.empty")}</p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {data.items.map((q) => (
-              <Link
+              <ContentCard
                 key={q.id}
                 to={`/quizzes/${q.id}`}
-                className="rounded-lg border bg-card p-4 transition-colors hover:border-primary"
-              >
-                <div className="font-medium">{q.title}</div>
-                <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">{q.description}</div>
-                <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
-                  <span className="rounded border px-1.5 py-0.5">{t(`difficulty.${q.difficulty}`)}</span>
-                  <span className="rounded border px-1.5 py-0.5">{q.language.toUpperCase()}</span>
-                  <span className="rounded border px-1.5 py-0.5">
-                    {t("quizzes.passThreshold", { pct: q.pass_threshold })}
-                  </span>
-                </div>
-              </Link>
+                title={q.title}
+                description={q.description}
+                Icon={ListChecks}
+                accentClass="bg-gradient-to-br from-violet-500/25 via-violet-500/10 to-transparent"
+                badges={
+                  <>
+                    <Meta>{t(`difficulty.${q.difficulty}`)}</Meta>
+                    <Meta>{q.language.toUpperCase()}</Meta>
+                    <Meta>{t("quizzes.passThreshold", { pct: q.pass_threshold })}</Meta>
+                  </>
+                }
+              />
             ))}
           </div>
         ))}

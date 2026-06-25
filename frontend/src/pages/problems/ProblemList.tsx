@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { Code2 } from "lucide-react"
 import { useProblems, type ProblemFilters } from "@/lib/queries"
 import { useContentLanguage } from "@/lib/useContentLanguage"
+import { ContentCard, Meta } from "@/components/ContentCard"
 
 const difficulties = ["beginner", "intermediate", "advanced"]
 const langs = ["ru", "en", "uz", "ja"]
@@ -57,9 +58,9 @@ export function ProblemList() {
       </div>
 
       {isPending && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-lg border bg-card" />
+            <div key={i} className="h-56 animate-pulse rounded-xl border bg-card" />
           ))}
         </div>
       )}
@@ -68,24 +69,24 @@ export function ProblemList() {
         (data.items.length === 0 ? (
           <p className="text-muted-foreground">{t("problems.empty")}</p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {data.items.map((p) => (
-              <Link
+              <ContentCard
                 key={p.id}
                 to={`/problems/${p.slug}`}
-                className="rounded-lg border bg-card p-4 transition-colors hover:border-primary"
-              >
-                <div className="font-medium">{p.title}</div>
-                <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
-                  <span className="rounded border px-1.5 py-0.5">{t(`difficulty.${p.difficulty}`)}</span>
-                  <span className="rounded border px-1.5 py-0.5">{p.language.toUpperCase()}</span>
-                  {p.tags.map((tag) => (
-                    <span key={tag} className="rounded border px-1.5 py-0.5">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              </Link>
+                title={p.title}
+                Icon={Code2}
+                accentClass="bg-gradient-to-br from-emerald-500/25 via-emerald-500/10 to-transparent"
+                badges={
+                  <>
+                    <Meta>{t(`difficulty.${p.difficulty}`)}</Meta>
+                    <Meta>{p.language.toUpperCase()}</Meta>
+                    {p.tags.slice(0, 2).map((tag) => (
+                      <Meta key={tag}>#{tag}</Meta>
+                    ))}
+                  </>
+                }
+              />
             ))}
           </div>
         ))}

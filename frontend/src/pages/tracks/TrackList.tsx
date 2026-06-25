@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { Route } from "lucide-react"
 import { useTracks, type TrackFilters } from "@/lib/queries"
 import { useContentLanguage } from "@/lib/useContentLanguage"
+import { ContentCard, Meta } from "@/components/ContentCard"
 
 const difficulties = ["beginner", "intermediate", "advanced"]
 const langs = ["ru", "en", "uz", "ja"]
@@ -57,9 +58,9 @@ export function TrackList() {
       </div>
 
       {isPending && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-lg border bg-card" />
+            <div key={i} className="h-64 animate-pulse rounded-xl border bg-card" />
           ))}
         </div>
       )}
@@ -68,20 +69,22 @@ export function TrackList() {
         (data.items.length === 0 ? (
           <p className="text-muted-foreground">{t("tracks.empty")}</p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {data.items.map((tr) => (
-              <Link
+              <ContentCard
                 key={tr.id}
                 to={`/tracks/${tr.id}`}
-                className="rounded-lg border bg-card p-4 transition-colors hover:border-primary"
-              >
-                <div className="font-medium">{tr.title}</div>
-                <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">{tr.description}</div>
-                <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
-                  <span className="rounded border px-1.5 py-0.5">{t(`difficulty.${tr.level}`)}</span>
-                  <span className="rounded border px-1.5 py-0.5">{tr.language.toUpperCase()}</span>
-                </div>
-              </Link>
+                title={tr.title}
+                description={tr.description}
+                Icon={Route}
+                accentClass="bg-gradient-to-br from-amber-500/25 via-amber-500/10 to-transparent"
+                badges={
+                  <>
+                    <Meta>{t(`difficulty.${tr.level}`)}</Meta>
+                    <Meta>{tr.language.toUpperCase()}</Meta>
+                  </>
+                }
+              />
             ))}
           </div>
         ))}

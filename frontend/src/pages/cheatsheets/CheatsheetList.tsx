@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { Search } from "lucide-react"
+import { BookOpen, Search } from "lucide-react"
 import { useCheatsheets, type CheatsheetFilters } from "@/lib/queries"
 import { useContentLanguage } from "@/lib/useContentLanguage"
+import { ContentCard, Meta } from "@/components/ContentCard"
 
 const langs = ["ru", "en", "uz", "ja"]
 const selectClass =
@@ -51,9 +51,9 @@ export function CheatsheetList() {
       </div>
 
       {isPending && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg border bg-card" />
+            <div key={i} className="h-56 animate-pulse rounded-xl border bg-card" />
           ))}
         </div>
       )}
@@ -62,19 +62,21 @@ export function CheatsheetList() {
         (data.items.length === 0 ? (
           <p className="text-muted-foreground">{t("cheatsheets.empty")}</p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {data.items.map((c) => (
-              <Link
+              <ContentCard
                 key={c.id}
                 to={`/cheatsheets/${c.id}`}
-                className="rounded-lg border bg-card p-4 transition-colors hover:border-primary"
-              >
-                <div className="font-medium">{c.title}</div>
-                <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
-                  <span className="rounded border px-1.5 py-0.5">{c.category}</span>
-                  <span className="rounded border px-1.5 py-0.5">{c.language.toUpperCase()}</span>
-                </div>
-              </Link>
+                title={c.title}
+                Icon={BookOpen}
+                accentClass="bg-gradient-to-br from-cyan-500/25 via-cyan-500/10 to-transparent"
+                badges={
+                  <>
+                    <Meta>{c.category}</Meta>
+                    <Meta>{c.language.toUpperCase()}</Meta>
+                  </>
+                }
+              />
             ))}
           </div>
         ))}
