@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (fmt / vet / build / test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: gofmt (must be clean)
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "::error::These files are not gofmt-formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: go build
+        run: go build ./...
+
+      # -short skips the Docker- and DB-backed integration tests; those run in the
+      # backend-integration job below.
+      - name: go test (short)
+        run: go test -short ./...
+
+  backend-integration:
+    name: Backend (integration, Postgres)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: goacademy
+          POSTGRES_PASSWORD: goacademy_dev_password
+          POSTGRES_DB: goacademy
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U goacademy"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://goacademy:goacademy_dev_password@localhost:5432/goacademy?sslmode=disable
+      TEST_DATABASE_URL: postgres://goacademy:goacademy_dev_password@localhost:5432/goacademy?sslmode=disable
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: Apply migrations
+        run: go run ./cmd/migrate up
+
+      # Runs the DB-backed integration tests. The Docker-backed runner/judge tests
+      # detect the absent sandbox image and skip themselves, so no Docker setup is
+      # needed here.
+      - name: go test (integration)
+        run: go test ./...
+
+  frontend:
+    name: Frontend (lint / build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (oxlint)
+        run: npm run lint
+
+      # `build` runs `tsc -b` first, so this also type-checks.
+      - name: Type-check + build
+        run: npm run build

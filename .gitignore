@@ -1,0 +1,54 @@
+# ---- Environment & secrets ----
+.env
+.env.*
+!.env.example
+*.local
+
+# ---- Go (backend) ----
+backend/bin/
+backend/tmp/
+*.exe
+*.exe~
+*.dll
+*.test
+*.out
+coverage.out
+coverage.html
+vendor/
+
+# ---- Node / Frontend ----
+node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---- Build / artifacts ----
+dist/
+build/
+*.log
+
+# ---- Docker / data volumes (local) ----
+deploy/data/
+deploy/postgres-data/
+
+# ---- Uploaded assets (local storage, D-009) ----
+backend/storage/
+/storage/
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- IDE ----
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ---- Claude Code (персональные локальные настройки) ----
+.claude/settings.local.json
