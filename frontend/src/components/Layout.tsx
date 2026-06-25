@@ -8,13 +8,32 @@ import { useTheme } from "@/lib/theme"
 import { cn } from "@/lib/utils"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 
-/** Layout is the app shell: a top bar, a section sidebar, and the routed page. */
+/** Layout is the app shell: a top bar, a collapsible section sidebar, and the
+ * routed page. The sidebar is toggled by the menu button on every screen size;
+ * the open/closed choice is remembered. On phones it opens as an overlay. */
 export function Layout() {
   const { t } = useTranslation()
   const { theme, toggle } = useTheme()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    const saved = localStorage.getItem("sidebarOpen")
+    return saved === null ? true : saved === "true"
+  })
+
+  function toggleSidebar() {
+    setSidebarOpen((o) => {
+      localStorage.setItem("sidebarOpen", String(!o))
+      return !o
+    })
+  }
+
+  // On phones the sidebar is an overlay, so close it after navigating.
+  function onNavigate() {
+    if (window.matchMedia("(max-width: 767px)").matches) {
+      setSidebarOpen(false)
+    }
+  }
 
   async function onLogout() {
     await logout()
@@ -23,11 +42,12 @@ export function Layout() {
 
   return (
     <div className="flex min-h-svh flex-col">
-      <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b bg-card px-4">
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-card px-4">
         <button
-          className="rounded p-2 hover:bg-accent md:hidden"
-          onClick={() => setMenuOpen((o) => !o)}
+          className="rounded p-2 hover:bg-accent"
+          onClick={toggleSidebar}
           aria-label="Toggle navigation"
+          aria-expanded={sidebarOpen}
         >
           <Menu className="size-5" />
         </button>
@@ -50,10 +70,20 @@ export function Layout() {
       </header>
 
       <div className="flex flex-1">
+        {/* Dim backdrop behind the overlay sidebar on phones. */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-x-0 top-14 bottom-0 z-10 bg-black/40 md:hidden"
+            onClick={toggleSidebar}
+            aria-hidden
+          />
+        )}
         <aside
           className={cn(
-            "w-60 shrink-0 border-r bg-card p-3 md:block",
-            menuOpen ? "block" : "hidden",
+            "w-60 shrink-0 border-r bg-card p-3",
+            // Overlay on phones; in-flow column on md+.
+            "max-md:fixed max-md:top-14 max-md:bottom-0 max-md:left-0 max-md:z-20 max-md:overflow-y-auto",
+            sidebarOpen ? "block" : "hidden",
           )}
         >
           <nav className="flex flex-col gap-1">
@@ -66,7 +96,7 @@ export function Layout() {
                   key={s.path}
                   to={s.path}
                   end={s.path === "/"}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={onNavigate}
                   className={({ isActive }) =>
                     cn(
                       "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
