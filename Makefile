@@ -32,6 +32,9 @@ migrate-down: ## Откатить последнюю миграцию
 migrate-version: ## Текущая версия схемы
 	go -C backend run ./cmd/migrate version
 
+seed: ## Наполнить БД учебным контентом на 4 языках (идемпотентно; нужен DATABASE_URL)
+	go -C backend run ./cmd/seed
+
 sqlc: ## Сгенерировать типобезопасный код из SQL (sqlc, пин v1.31.1)
 	cd backend && go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1 generate
 
