@@ -1,9 +1,14 @@
-import { useState } from "react"
+import { lazy, Suspense, useState } from "react"
 import { useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Play, Clock } from "lucide-react"
 import { useRunSandbox } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
+
+// CodeEditor pulls in highlight.js — keep it out of the initial bundle.
+const CodeEditor = lazy(() =>
+  import("@/components/CodeEditor").then((m) => ({ default: m.CodeEditor })),
+)
 
 const template = `package main
 
@@ -36,17 +41,18 @@ export function Sandbox() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium" htmlFor="code">
-            {t("sandbox.code")}
-          </label>
-          <textarea
-            id="code"
-            value={source}
-            onChange={(e) => setSource(e.target.value)}
-            spellCheck={false}
-            rows={18}
-            className="w-full resize-y rounded-md border bg-card p-3 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          />
+          <span className="text-sm font-medium">{t("sandbox.code")}</span>
+          <Suspense
+            fallback={<div className="h-[28rem] w-full animate-pulse rounded-lg bg-muted" />}
+          >
+            <CodeEditor
+              value={source}
+              onChange={setSource}
+              language="go"
+              ariaLabel={t("sandbox.code")}
+              className="h-[28rem]"
+            />
+          </Suspense>
           <label className="text-sm font-medium" htmlFor="stdin">
             {t("sandbox.stdin")}
           </label>

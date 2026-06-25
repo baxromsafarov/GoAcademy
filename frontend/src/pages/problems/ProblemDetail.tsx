@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { ArrowLeft, Check, CheckCircle2, Info, X } from "lucide-react"
+import { ArrowLeft, Check, CheckCircle2, Code2, Info, Play, X } from "lucide-react"
 import { useProblem, useProblemSolution, useSubmitProblem } from "@/lib/queries"
 import type { JudgeVerdict, ProblemSample } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button"
 
 // Markdown carries react-markdown + highlight.js — load it as its own chunk.
 const Markdown = lazy(() => import("@/components/Markdown").then((m) => ({ default: m.Markdown })))
+// CodeEditor pulls in highlight.js too — keep it out of the initial bundle.
+const CodeEditor = lazy(() =>
+  import("@/components/CodeEditor").then((m) => ({ default: m.CodeEditor })),
+)
 
 const languages = ["go", "python", "javascript", "rust", "java"]
 
@@ -42,86 +46,115 @@ export function ProblemDetail() {
         <div className="flex flex-col gap-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">{problem.data.title}</h1>
-              <div className="mt-2 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
-                <span className="rounded border px-1.5 py-0.5">
+              <div className="mb-2 flex items-center gap-1.5 text-xs font-medium tracking-wide text-emerald-500 uppercase">
+                <Code2 className="size-3.5" /> {t("nav.problems")}
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{problem.data.title}</h1>
+              <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+                <span className="rounded-md border px-1.5 py-0.5">
                   {t(`difficulty.${problem.data.difficulty}`)}
                 </span>
-                <span className="rounded border px-1.5 py-0.5">
+                <span className="rounded-md border px-1.5 py-0.5">
                   {problem.data.language.toUpperCase()}
                 </span>
                 {problem.data.tags.map((tag) => (
-                  <span key={tag} className="rounded border px-1.5 py-0.5">
+                  <span key={tag} className="rounded-md border px-1.5 py-0.5">
                     #{tag}
                   </span>
                 ))}
               </div>
             </div>
             {solved && (
-              <span className="flex shrink-0 items-center gap-1 text-sm text-green-600 dark:text-green-400">
+              <span className="flex shrink-0 items-center gap-1 text-sm font-medium text-green-600 dark:text-green-400">
                 <CheckCircle2 className="size-5" /> {t("problems.solved")}
               </span>
             )}
           </div>
 
-          <Suspense fallback={<div className="h-32 w-full animate-pulse rounded-md bg-muted" />}>
-            <Markdown>{problem.data.statement_markdown}</Markdown>
-          </Suspense>
+          {/* Practice split: the statement (theory) sits on the left and the
+              code editor with its run/submit controls on the right. They stack
+              into one column below lg. */}
+          <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
+            <div className="flex flex-col gap-5">
+              <div className="rounded-xl border bg-card p-5">
+                <Suspense
+                  fallback={<div className="h-32 w-full animate-pulse rounded-md bg-muted" />}
+                >
+                  <Markdown>{problem.data.statement_markdown}</Markdown>
+                </Suspense>
+              </div>
 
-          {problem.data.sample_io.length > 0 && (
-            <section className="flex flex-col gap-3">
-              <h2 className="text-lg font-semibold">{t("problems.examples")}</h2>
-              {problem.data.sample_io.map((ex, i) => (
-                <SampleExample key={i} index={i + 1} sample={ex} />
-              ))}
-            </section>
-          )}
+              {problem.data.sample_io.length > 0 && (
+                <section className="flex flex-col gap-3">
+                  <h2 className="text-lg font-semibold">{t("problems.examples")}</h2>
+                  {problem.data.sample_io.map((ex, i) => (
+                    <SampleExample key={i} index={i + 1} sample={ex} />
+                  ))}
+                </section>
+              )}
 
-          <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold">{t("problems.yourSolution")}</h2>
-            <div className="flex flex-wrap items-center gap-2">
-              <label className="text-sm text-muted-foreground" htmlFor="lang">
-                {t("problems.language")}
-              </label>
-              <select
-                id="lang"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="h-9 rounded-md border bg-transparent px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {languages.map((l) => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </select>
+              {solved && referenceSolution && (
+                <section className="flex flex-col gap-3 border-t pt-4">
+                  <h2 className="text-lg font-semibold">{t("problems.referenceSolution")}</h2>
+                  <Suspense
+                    fallback={<div className="h-24 w-full animate-pulse rounded-md bg-muted" />}
+                  >
+                    <Markdown>{referenceSolution}</Markdown>
+                  </Suspense>
+                </section>
+              )}
             </div>
-            <textarea
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              spellCheck={false}
-              rows={12}
-              placeholder={t("problems.codePlaceholder")}
-              className="w-full resize-y rounded-md border bg-card p-3 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
 
-            <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={markSolved}
-                onChange={(e) => setMarkSolved(e.target.checked)}
-                className="size-4 accent-primary"
-              />
-              {t("problems.markSolved")}
-            </label>
+            <section className="flex flex-col gap-3 lg:sticky lg:top-20">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-lg font-semibold">{t("problems.yourSolution")}</h2>
+                <select
+                  id="lang"
+                  aria-label={t("problems.language")}
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="h-9 rounded-md border bg-transparent px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {languages.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                onClick={() => submit.mutate({ code, language, solved: markSolved })}
-                disabled={code.trim().length === 0 || submit.isPending}
+              <Suspense
+                fallback={<div className="h-[24rem] w-full animate-pulse rounded-lg bg-muted" />}
               >
-                {submit.isPending ? t("problems.submitting") : t("problems.submit")}
-              </Button>
+                <CodeEditor
+                  value={code}
+                  onChange={setCode}
+                  language={language}
+                  ariaLabel={t("problems.yourSolution")}
+                  placeholder={t("problems.codePlaceholder")}
+                  className="h-[22rem] lg:h-[26rem]"
+                />
+              </Suspense>
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={markSolved}
+                    onChange={(e) => setMarkSolved(e.target.checked)}
+                    className="size-4 accent-primary"
+                  />
+                  {t("problems.markSolved")}
+                </label>
+                <Button
+                  onClick={() => submit.mutate({ code, language, solved: markSolved })}
+                  disabled={code.trim().length === 0 || submit.isPending}
+                >
+                  <Play className="size-4" />
+                  {submit.isPending ? t("problems.submitting") : t("problems.submit")}
+                </Button>
+              </div>
+
               {submit.isSuccess &&
                 !submit.data.verdict &&
                 (submit.data.status === "solved" ? (
@@ -132,26 +165,17 @@ export function ProblemDetail() {
                   <span className="text-sm text-muted-foreground">{t("problems.submittedSaved")}</span>
                 ))}
               {submit.isError && <span className="text-sm text-red-500">{t("common.error")}</span>}
-            </div>
 
-            {submit.data?.verdict && <VerdictPanel verdict={submit.data.verdict} />}
+              {submit.data?.verdict && <VerdictPanel verdict={submit.data.verdict} />}
 
-            {!submit.data?.verdict && (
-              <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                <Info className="mt-0.5 size-3.5 shrink-0" />
-                {t("problems.judgeNote")}
-              </p>
-            )}
-          </section>
-
-          {solved && referenceSolution && (
-            <section className="flex flex-col gap-3 border-t pt-4">
-              <h2 className="text-lg font-semibold">{t("problems.referenceSolution")}</h2>
-              <Suspense fallback={<div className="h-24 w-full animate-pulse rounded-md bg-muted" />}>
-                <Markdown>{referenceSolution}</Markdown>
-              </Suspense>
+              {!submit.data?.verdict && (
+                <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                  <Info className="mt-0.5 size-3.5 shrink-0" />
+                  {t("problems.judgeNote")}
+                </p>
+              )}
             </section>
-          )}
+          </div>
         </div>
       )}
     </div>
