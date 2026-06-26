@@ -1,4 +1,4 @@
-# GoAcademy — share/present from anywhere.
+# GoAcademy - share/present from anywhere.
 #
 # Starts the full stack (Postgres in Docker, native backend with the code
 # sandbox, Vite dev server bound to all interfaces) and a free cloudflared
@@ -94,7 +94,7 @@ if ($url) {
   Write-Host "      $url" -ForegroundColor White
   Write-Host "================================================================" -ForegroundColor Green
 } else {
-  Write-Host "Tunnel didn't report a URL yet — check $log" -ForegroundColor Yellow
+  Write-Host "Tunnel did not report a URL yet - check $log" -ForegroundColor Yellow
 }
 Write-Host ""
 Write-Host "Local:  http://localhost:5173    API: http://localhost:8080/api/v1"
