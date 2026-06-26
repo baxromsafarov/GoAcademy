@@ -165,6 +165,7 @@ export interface QuizFilters extends PageFilter {
   difficulty?: string
   tag?: string
   language?: string
+  q?: string
 }
 
 export function useQuizzes(filters: QuizFilters = {}) {
@@ -172,6 +173,7 @@ export function useQuizzes(filters: QuizFilters = {}) {
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
+  if (filters.q) params.set("q", filters.q)
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
@@ -200,6 +202,7 @@ export interface ProblemFilters extends PageFilter {
   difficulty?: string
   tag?: string
   language?: string
+  q?: string
 }
 
 export function useProblems(filters: ProblemFilters = {}) {
@@ -207,6 +210,7 @@ export function useProblems(filters: ProblemFilters = {}) {
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
+  if (filters.q) params.set("q", filters.q)
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
@@ -266,12 +270,14 @@ export function useSubmitProblem(slug: string) {
 export interface TrackFilters extends PageFilter {
   difficulty?: string
   language?: string
+  q?: string
 }
 
 export function useTracks(filters: TrackFilters = {}) {
   const params = new URLSearchParams()
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.language) params.set("language", filters.language)
+  if (filters.q) params.set("q", filters.q)
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
@@ -333,6 +339,7 @@ export interface ProjectFilters extends PageFilter {
   difficulty?: string
   tag?: string
   language?: string
+  q?: string
 }
 
 export function useProjects(filters: ProjectFilters = {}) {
@@ -340,6 +347,7 @@ export function useProjects(filters: ProjectFilters = {}) {
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
+  if (filters.q) params.set("q", filters.q)
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
@@ -513,6 +521,113 @@ export function useDeleteArticle() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["articles"] }),
   })
 }
+
+// ---- Admin: cheatsheets / glossary / projects / tracks / quizzes / problems ----
+
+/** makeAdminCrud builds matching save (create via POST, update via PATCH) and
+ * delete hooks for an admin content type, invalidating its public list. */
+function adminSave<I>(path: string, listKey: string) {
+  return function useSave() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: ({ id, input }: { id?: string; input: I }) =>
+        id ? api.patch(`/admin/${path}/${id}`, input) : api.post(`/admin/${path}`, input),
+      onSuccess: () => qc.invalidateQueries({ queryKey: [listKey] }),
+    })
+  }
+}
+function adminDelete(path: string, listKey: string) {
+  return function useDel() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (id: string) => api.del(`/admin/${path}/${id}`),
+      onSuccess: () => qc.invalidateQueries({ queryKey: [listKey] }),
+    })
+  }
+}
+
+export interface AdminCheatsheetInput {
+  title: string
+  category: string
+  body_markdown: string
+  language: string
+}
+export const useSaveCheatsheet = adminSave<AdminCheatsheetInput>("cheatsheets", "cheatsheets")
+export const useDeleteCheatsheet = adminDelete("cheatsheets", "cheatsheets")
+
+export interface AdminGlossaryInput {
+  term: string
+  definition_markdown: string
+  language: string
+}
+export const useSaveGlossary = adminSave<AdminGlossaryInput>("glossary", "glossary")
+export const useDeleteGlossary = adminDelete("glossary", "glossary")
+
+export interface AdminProjectInput {
+  title: string
+  description_markdown: string
+  difficulty: string
+  language: string
+  tags: string[]
+  steps: { text: string }[]
+}
+export const useSaveProject = adminSave<AdminProjectInput>("projects", "projects")
+export const useDeleteProject = adminDelete("projects", "projects")
+
+export interface AdminTrackItemInput {
+  content_type: string
+  content_id: string
+}
+export interface AdminTrackInput {
+  title: string
+  description: string
+  level: string
+  position: number
+  language: string
+  items: AdminTrackItemInput[]
+}
+export const useSaveTrack = adminSave<AdminTrackInput>("tracks", "tracks")
+export const useDeleteTrack = adminDelete("tracks", "tracks")
+
+export interface AdminQuizOptionInput {
+  text: string
+  is_correct: boolean
+}
+export interface AdminQuizQuestionInput {
+  prompt: string
+  type: string
+  options: AdminQuizOptionInput[]
+}
+export interface AdminQuizInput {
+  title: string
+  description: string
+  pass_threshold: number
+  difficulty: string
+  language: string
+  tags: string[]
+  questions: AdminQuizQuestionInput[]
+}
+export const useSaveQuiz = adminSave<AdminQuizInput>("quizzes", "quizzes")
+export const useDeleteQuiz = adminDelete("quizzes", "quizzes")
+
+export interface AdminTestCaseInput {
+  input: string
+  expected_output: string
+  is_sample: boolean
+}
+export interface AdminProblemInput {
+  title: string
+  slug: string
+  statement_markdown: string
+  reference_solution_markdown: string
+  difficulty: string
+  language: string
+  tags: string[]
+  sample_io: { input: string; output: string }[]
+  test_cases: AdminTestCaseInput[]
+}
+export const useSaveProblem = adminSave<AdminProblemInput>("problems", "problems")
+export const useDeleteProblem = adminDelete("problems", "problems")
 
 export function useAdminUsers(params: { q?: string; limit?: number; offset?: number }) {
   const sp = new URLSearchParams()

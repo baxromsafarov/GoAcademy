@@ -29,6 +29,18 @@ import { AdminVideos } from "@/pages/admin/AdminVideos"
 import { VideoForm } from "@/pages/admin/VideoForm"
 import { AdminArticles } from "@/pages/admin/AdminArticles"
 import { ArticleForm } from "@/pages/admin/ArticleForm"
+import { AdminQuizzes } from "@/pages/admin/AdminQuizzes"
+import { QuizForm } from "@/pages/admin/QuizForm"
+import { AdminProblems } from "@/pages/admin/AdminProblems"
+import { ProblemForm } from "@/pages/admin/ProblemForm"
+import { AdminTracks } from "@/pages/admin/AdminTracks"
+import { TrackForm } from "@/pages/admin/TrackForm"
+import { AdminProjects } from "@/pages/admin/AdminProjects"
+import { ProjectForm } from "@/pages/admin/ProjectForm"
+import { AdminCheatsheets } from "@/pages/admin/AdminCheatsheets"
+import { CheatsheetForm } from "@/pages/admin/CheatsheetForm"
+import { AdminGlossary } from "@/pages/admin/AdminGlossary"
+import { GlossaryForm } from "@/pages/admin/GlossaryForm"
 import { AdminUsers } from "@/pages/admin/AdminUsers"
 import { Login } from "@/pages/auth/Login"
 import { Register } from "@/pages/auth/Register"
@@ -81,6 +93,24 @@ export default function App() {
               <Route path="admin/articles" element={<AdminArticles />} />
               <Route path="admin/articles/new" element={<ArticleForm />} />
               <Route path="admin/articles/:slug/edit" element={<ArticleForm />} />
+              <Route path="admin/quizzes" element={<AdminQuizzes />} />
+              <Route path="admin/quizzes/new" element={<QuizForm />} />
+              <Route path="admin/quizzes/:id/edit" element={<QuizForm />} />
+              <Route path="admin/problems" element={<AdminProblems />} />
+              <Route path="admin/problems/new" element={<ProblemForm />} />
+              <Route path="admin/problems/:slug/edit" element={<ProblemForm />} />
+              <Route path="admin/tracks" element={<AdminTracks />} />
+              <Route path="admin/tracks/new" element={<TrackForm />} />
+              <Route path="admin/tracks/:id/edit" element={<TrackForm />} />
+              <Route path="admin/projects" element={<AdminProjects />} />
+              <Route path="admin/projects/new" element={<ProjectForm />} />
+              <Route path="admin/projects/:id/edit" element={<ProjectForm />} />
+              <Route path="admin/cheatsheets" element={<AdminCheatsheets />} />
+              <Route path="admin/cheatsheets/new" element={<CheatsheetForm />} />
+              <Route path="admin/cheatsheets/:id/edit" element={<CheatsheetForm />} />
+              <Route path="admin/glossary" element={<AdminGlossary />} />
+              <Route path="admin/glossary/new" element={<GlossaryForm />} />
+              <Route path="admin/glossary/:id/edit" element={<GlossaryForm />} />
               <Route path="admin/users" element={<AdminUsers />} />
             </Route>
             <Route
