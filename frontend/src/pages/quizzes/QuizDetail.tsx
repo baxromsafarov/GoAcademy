@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { ArrowLeft, Check, X } from "lucide-react"
+import { ArrowLeft, Check, ListChecks, X } from "lucide-react"
 import { useQuiz, useSubmitQuiz } from "@/lib/queries"
 import type { QuizQuestion, QuizQuestionReview } from "@/lib/types"
 import { Button } from "@/components/ui/button"
@@ -40,10 +40,10 @@ export function QuizDetail() {
   const allAnswered = questions.length > 0 && answeredCount === questions.length
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
       <Link
         to="/quizzes"
-        className="flex w-fit items-center gap-1 text-sm text-muted-foreground hover:underline"
+        className="flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" /> {t("common.back")}
       </Link>
@@ -54,14 +54,17 @@ export function QuizDetail() {
       {quiz.data && (
         <div className="flex flex-col gap-5">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{quiz.data.title}</h1>
+            <div className="mb-2 flex items-center gap-1.5 text-xs font-medium tracking-wide text-violet-500 uppercase">
+              <ListChecks className="size-3.5" /> {t("nav.quizzes")}
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{quiz.data.title}</h1>
             {quiz.data.description && (
-              <p className="mt-1 text-muted-foreground">{quiz.data.description}</p>
+              <p className="mt-2 text-muted-foreground">{quiz.data.description}</p>
             )}
-            <div className="mt-2 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
-              <span className="rounded border px-1.5 py-0.5">{t(`difficulty.${quiz.data.difficulty}`)}</span>
-              <span className="rounded border px-1.5 py-0.5">{quiz.data.language.toUpperCase()}</span>
-              <span className="rounded border px-1.5 py-0.5">
+            <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+              <span className="rounded-md border px-1.5 py-0.5">{t(`difficulty.${quiz.data.difficulty}`)}</span>
+              <span className="rounded-md border px-1.5 py-0.5">{quiz.data.language.toUpperCase()}</span>
+              <span className="rounded-md border px-1.5 py-0.5">
                 {t("quizzes.passThreshold", { pct: quiz.data.pass_threshold })}
               </span>
             </div>

@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { ArrowLeft, CheckCircle2, Circle } from "lucide-react"
+import { ArrowLeft, CheckCircle2, Circle, FolderKanban } from "lucide-react"
 import { useProject, useProjectProgress, useToggleProjectStep } from "@/lib/queries"
 
 const Markdown = lazy(() => import("@/components/Markdown").then((m) => ({ default: m.Markdown })))
@@ -19,10 +19,10 @@ export function ProjectDetail() {
   const percent = total > 0 ? Math.round((completed / total) * 100) : 0
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
       <Link
         to="/projects"
-        className="flex w-fit items-center gap-1 text-sm text-muted-foreground hover:underline"
+        className="flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" /> {t("common.back")}
       </Link>
@@ -34,16 +34,19 @@ export function ProjectDetail() {
         <div className="flex flex-col gap-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">{project.data.title}</h1>
-              <div className="mt-2 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
-                <span className="rounded border px-1.5 py-0.5">
+              <div className="mb-2 flex items-center gap-1.5 text-xs font-medium tracking-wide text-rose-500 uppercase">
+                <FolderKanban className="size-3.5" /> {t("nav.projects")}
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{project.data.title}</h1>
+              <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+                <span className="rounded-md border px-1.5 py-0.5">
                   {t(`difficulty.${project.data.difficulty}`)}
                 </span>
-                <span className="rounded border px-1.5 py-0.5">
+                <span className="rounded-md border px-1.5 py-0.5">
                   {project.data.language.toUpperCase()}
                 </span>
                 {project.data.tags.map((tag) => (
-                  <span key={tag} className="rounded border px-1.5 py-0.5">
+                  <span key={tag} className="rounded-md border px-1.5 py-0.5">
                     #{tag}
                   </span>
                 ))}
