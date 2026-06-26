@@ -5,6 +5,7 @@ import { difficultyOptions, languageOptions } from "@/lib/filterOptions"
 import { ContentCard, Meta } from "@/components/ContentCard"
 import { Select } from "@/components/ui/select"
 import { Pagination } from "@/components/Pagination"
+import { SearchBox } from "@/components/admin/AdminFilters"
 
 function fmtDuration(s: number): string {
   return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`
@@ -14,6 +15,7 @@ export function VideoList() {
   const { t } = useTranslation()
   const { get, language, offset, pageSize, page, setParam, setLanguage, setPage } = useListParams()
   const { data, isPending, isError } = useVideos({
+    q: get("q") || undefined,
     difficulty: get("difficulty") || undefined,
     tag: get("tag") || undefined,
     language: language || undefined,
@@ -26,6 +28,7 @@ export function VideoList() {
       <h1 className="text-2xl font-semibold tracking-tight">{t("nav.videos")}</h1>
 
       <div className="flex flex-wrap gap-2">
+        <SearchBox value={get("q")} onChange={(v) => setParam("q", v)} />
         <Select
           value={get("difficulty")}
           onChange={(v) => setParam("difficulty", v)}

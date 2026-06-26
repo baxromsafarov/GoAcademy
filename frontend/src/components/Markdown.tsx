@@ -50,6 +50,24 @@ function codeLang(children: unknown): string {
 }
 
 /**
+ * toProgram turns an article snippet into something the Go sandbox can run.
+ * Full programs (with `package main`) and top-level declaration snippets
+ * (starting with func/type/import/package) are returned untouched; bare
+ * statement snippets are wrapped in `func main()`, importing fmt only when used.
+ */
+function toProgram(code: string): string {
+  const src = code.trim()
+  if (/\bpackage\s+main\b/.test(src)) return code
+  if (/^\s*(package|import|func|type)\b/m.test(src)) return code
+  const body = src
+    .split("\n")
+    .map((l) => "\t" + l)
+    .join("\n")
+  const imp = /\bfmt\./.test(src) ? '\nimport "fmt"\n' : "\n"
+  return `package main\n${imp}\nfunc main() {\n${body}\n}\n`
+}
+
+/**
  * RunnableCodeBlock wraps a fenced code block with a toolbar: run it inline
  * (right here in the article, no navigation) and open it in the full sandbox.
  * Output appears directly under the block. Run/Open show only for Go code.
@@ -59,6 +77,8 @@ function RunnableCodeBlock({ code, runnable, children }: { code: string; runnabl
   const navigate = useNavigate()
   const run = useRunSandbox()
   const [showOutput, setShowOutput] = useState(false)
+  // A complete, runnable Go program built from the snippet.
+  const program = toProgram(code)
 
   return (
     <div className="my-4 overflow-hidden rounded-md border">
@@ -69,7 +89,7 @@ function RunnableCodeBlock({ code, runnable, children }: { code: string; runnabl
               type="button"
               onClick={() => {
                 setShowOutput(true)
-                run.mutate({ source: code, stdin: "" })
+                run.mutate({ source: program, stdin: "" })
               }}
               disabled={run.isPending}
               title={t("sandbox.run")}
@@ -80,7 +100,7 @@ function RunnableCodeBlock({ code, runnable, children }: { code: string; runnabl
             </button>
             <button
               type="button"
-              onClick={() => navigate("/sandbox", { state: { code } })}
+              onClick={() => navigate("/sandbox", { state: { code: program } })}
               title={t("articles.openInSandbox")}
               className="flex items-center gap-1 rounded border border-white/20 bg-black/40 px-2 py-1 text-xs text-white backdrop-blur hover:bg-black/60"
             >
@@ -178,9 +198,9 @@ export function Markdown({ children }: { children: string }) {
     pre: ({ children }) => {
       const code = extractCode(children)
       const lang = codeLang(children)
-      // The sandbox only runs Go; show the run/open toolbar for Go (or untagged)
-      // blocks that look like a program, not for bash/json/yaml snippets.
-      const runnable = (lang === "" || lang === "go") && /\b(package|func|import)\b/.test(code)
+      // The sandbox only runs Go; show the run/open toolbar for every Go (or
+      // untagged) block, not for bash/json/yaml snippets.
+      const runnable = lang === "" || lang === "go"
       return (
         <RunnableCodeBlock code={code} runnable={runnable}>
           {children}

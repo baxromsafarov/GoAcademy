@@ -76,6 +76,9 @@ export function Layout() {
         <aside
           className={cn(
             "w-60 shrink-0 border-r bg-card p-3",
+            // On md+ the sidebar sticks under the header and scrolls on its own,
+            // independently of the routed page.
+            "md:sticky md:top-14 md:h-[calc(100dvh-3.5rem)] md:self-start md:overflow-y-auto",
             // Overlay on phones; in-flow column on md+.
             "max-md:fixed max-md:top-14 max-md:bottom-0 max-md:left-0 max-md:z-20 max-md:overflow-y-auto",
             sidebarOpen ? "block" : "hidden",
