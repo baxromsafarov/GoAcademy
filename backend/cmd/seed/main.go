@@ -22,15 +22,6 @@ import (
 // langs is the set of languages every topic is seeded in.
 var langs = []string{"ru", "en", "uz", "ja"}
 
-// youTubePool is a small set of real Go YouTube video IDs. NOTE: sourcing 30
-// genuine language-specific tutorials per language is out of scope, so videos
-// reuse this pool — replace these IDs with real per-language videos as desired.
-var youTubePool = []string{
-	"YS4e4q9oBaU", // freeCodeCamp — Learn Go Programming
-	"un6ZyFkqFKo", // Go in 100 seconds / intro
-	"446E-r0rXHI", // Go tutorial
-}
-
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "fatal: "+err.Error())
@@ -97,21 +88,14 @@ func (s *seeder) clean() error {
 
 func (s *seeder) seed() error {
 	for li, lang := range langs {
-		var videoIDs, articleIDs, quizIDs, problemIDs []string
-		for ti, t := range curriculum {
-			// Video
-			var vid string
-			if err := s.pool.QueryRow(s.ctx,
-				`INSERT INTO videos (title, description, youtube_id, duration_seconds, difficulty, tags, language)
-				 VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id::text`,
-				t.Title.get(lang), t.Blurb.get(lang), youTubePool[ti%len(youTubePool)], 600+ti*30,
-				t.Difficulty, []string{"seed", "go", t.Tag}, lang,
-			).Scan(&vid); err != nil {
-				return fmt.Errorf("video %s/%s: %w", t.Tag, lang, err)
-			}
-			videoIDs = append(videoIDs, vid)
-			s.videos++
-
+		// Videos come from the language's real Go course playlist, not the
+		// curriculum topics, so each language shows ~17–44 genuine videos.
+		videoIDs, err := s.seedVideos(lang)
+		if err != nil {
+			return fmt.Errorf("videos %s: %w", lang, err)
+		}
+		var articleIDs, quizIDs, problemIDs []string
+		for _, t := range curriculum {
 			// Article
 			var aid string
 			if err := s.pool.QueryRow(s.ctx,
@@ -155,6 +139,51 @@ func (s *seeder) seed() error {
 		}
 	}
 	return nil
+}
+
+// seedVideos inserts every video from a language's playlist (falling back to
+// the English one) and returns their ids in playlist order. Difficulty is
+// bucketed by position; duration is unknown from a playlist page, so it is left
+// at 0 (the UI simply omits the duration badge).
+func (s *seeder) seedVideos(lang string) ([]string, error) {
+	vids := videoPlaylists[lang]
+	if len(vids) == 0 {
+		vids = videoPlaylists["en"]
+	}
+	ids := make([]string, 0, len(vids))
+	for i, v := range vids {
+		diff := "beginner"
+		switch {
+		case i >= len(vids)*7/10:
+			diff = "advanced"
+		case i >= len(vids)*4/10:
+			diff = "intermediate"
+		}
+		var id string
+		if err := s.pool.QueryRow(s.ctx,
+			`INSERT INTO videos (title, description, youtube_id, duration_seconds, difficulty, tags, language)
+			 VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id::text`,
+			v.Title, videoDesc(lang, i+1), v.ID, 0, diff, []string{"seed", "go"}, lang,
+		).Scan(&id); err != nil {
+			return nil, fmt.Errorf("video %d: %w", i+1, err)
+		}
+		ids = append(ids, id)
+		s.videos++
+	}
+	return ids, nil
+}
+
+func videoDesc(lang string, n int) string {
+	switch lang {
+	case "ru":
+		return fmt.Sprintf("Видео-урок №%d курса Go.", n)
+	case "uz":
+		return fmt.Sprintf("Go kursining %d-video darsi.", n)
+	case "ja":
+		return fmt.Sprintf("Go コースのビデオレッスン %d。", n)
+	default:
+		return fmt.Sprintf("Go course — video lesson %d.", n)
+	}
 }
 
 func (s *seeder) insertQuiz(t topic, lang string) (string, error) {
@@ -250,13 +279,16 @@ func (s *seeder) insertTrack(lang string, position int, videoIDs, articleIDs, qu
 		pos++
 		return err
 	}
-	// Interleave per topic: article -> video -> quiz -> problem.
+	// Interleave per topic: article -> video -> quiz -> problem. There may be
+	// fewer playlist videos than topics, so only link a video when one exists.
 	for i := range articleIDs {
 		if err := add("article", articleIDs[i]); err != nil {
 			return err
 		}
-		if err := add("video", videoIDs[i]); err != nil {
-			return err
+		if i < len(videoIDs) {
+			if err := add("video", videoIDs[i]); err != nil {
+				return err
+			}
 		}
 		if err := add("quiz", quizIDs[i]); err != nil {
 			return err
