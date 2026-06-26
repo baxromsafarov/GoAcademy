@@ -389,6 +389,7 @@ export interface Bookmark {
   id: string
   content_type: string
   content_id: string
+  title: string
   created_at: string
 }
 

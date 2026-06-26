@@ -31,15 +31,15 @@ export function MyBookmarks() {
                 key={b.id}
                 className="flex items-center gap-3 rounded-lg border bg-card p-3"
               >
-                <span className="rounded border px-1.5 py-0.5 text-xs text-muted-foreground">
+                <span className="rounded border px-1.5 py-0.5 text-xs text-muted-foreground capitalize">
                   {b.content_type}
                 </span>
                 <Link
                   to={contentPath(b.content_type, b.content_id)}
-                  className="flex flex-1 items-center gap-1 text-sm font-medium hover:underline"
+                  className="flex flex-1 items-center gap-1 truncate text-sm font-medium hover:underline"
                 >
-                  {t("bookmarks.open")}
-                  <ChevronRight className="size-4" />
+                  {b.title || t("bookmarks.open")}
+                  <ChevronRight className="size-4 shrink-0" />
                 </Link>
                 <button
                   type="button"

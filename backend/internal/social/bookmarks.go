@@ -16,6 +16,7 @@ type Bookmark struct {
 	ID          string
 	ContentType string
 	ContentID   string
+	Title       string
 	CreatedAt   time.Time
 }
 
@@ -89,7 +90,13 @@ func (s *BookmarksService) List(ctx context.Context, userID string) ([]Bookmark,
 	}
 	out := make([]Bookmark, len(rows))
 	for i, r := range rows {
-		out[i] = toBookmark(r)
+		out[i] = Bookmark{
+			ID:          pgxutil.UUIDString(r.ID),
+			ContentType: r.ContentType,
+			ContentID:   pgxutil.UUIDString(r.ContentID),
+			Title:       r.Title,
+			CreatedAt:   r.CreatedAt.Time,
+		}
 	}
 	return out, nil
 }

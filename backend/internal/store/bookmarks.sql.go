@@ -58,24 +58,47 @@ func (q *Queries) DeleteBookmark(ctx context.Context, arg DeleteBookmarkParams) 
 }
 
 const listUserBookmarks = `-- name: ListUserBookmarks :many
-SELECT id, user_id, content_type, content_id, created_at FROM bookmarks WHERE user_id = $1 ORDER BY created_at DESC, id
+SELECT b.id, b.user_id, b.content_type, b.content_id, b.created_at,
+  COALESCE(v.title, a.title, q.title, p.title, mp.title, t.title, cs.title, '') AS title
+FROM bookmarks b
+LEFT JOIN videos v         ON b.content_type = 'video'      AND v.id  = b.content_id
+LEFT JOIN articles a       ON b.content_type = 'article'    AND a.id  = b.content_id
+LEFT JOIN quizzes q        ON b.content_type = 'quiz'       AND q.id  = b.content_id
+LEFT JOIN problems p       ON b.content_type = 'problem'    AND p.id  = b.content_id
+LEFT JOIN mini_projects mp ON b.content_type = 'project'    AND mp.id = b.content_id
+LEFT JOIN tracks t         ON b.content_type = 'track'      AND t.id  = b.content_id
+LEFT JOIN cheatsheets cs   ON b.content_type = 'cheatsheet' AND cs.id = b.content_id
+WHERE b.user_id = $1
+ORDER BY b.created_at DESC, b.id
 `
 
-func (q *Queries) ListUserBookmarks(ctx context.Context, userID pgtype.UUID) ([]Bookmark, error) {
+type ListUserBookmarksRow struct {
+	ID          pgtype.UUID        `json:"id"`
+	UserID      pgtype.UUID        `json:"user_id"`
+	ContentType string             `json:"content_type"`
+	ContentID   pgtype.UUID        `json:"content_id"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	Title       string             `json:"title"`
+}
+
+// The saved content's title is resolved polymorphically so the UI can show what
+// was bookmarked (content_id is a uuid across every content type).
+func (q *Queries) ListUserBookmarks(ctx context.Context, userID pgtype.UUID) ([]ListUserBookmarksRow, error) {
 	rows, err := q.db.Query(ctx, listUserBookmarks, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Bookmark{}
+	items := []ListUserBookmarksRow{}
 	for rows.Next() {
-		var i Bookmark
+		var i ListUserBookmarksRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
 			&i.ContentType,
 			&i.ContentID,
 			&i.CreatedAt,
+			&i.Title,
 		); err != nil {
 			return nil, err
 		}

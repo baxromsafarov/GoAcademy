@@ -955,6 +955,7 @@ type bookmarkResponse struct {
 	ID          string    `json:"id"`
 	ContentType string    `json:"content_type"`
 	ContentID   string    `json:"content_id"`
+	Title       string    `json:"title"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
@@ -963,6 +964,7 @@ func toBookmarkResponse(b social.Bookmark) bookmarkResponse {
 		ID:          b.ID,
 		ContentType: b.ContentType,
 		ContentID:   b.ContentID,
+		Title:       b.Title,
 		CreatedAt:   b.CreatedAt,
 	}
 }

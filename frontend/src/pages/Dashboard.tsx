@@ -236,7 +236,7 @@ export function Dashboard() {
                       className="flex items-center gap-2.5 rounded-lg border bg-card p-2.5 text-sm transition-colors hover:border-primary/50"
                     >
                       <Bookmark className="size-4 shrink-0 text-primary" />
-                      <span className="flex-1 truncate capitalize">{b.content_type}</span>
+                      <span className="flex-1 truncate">{b.title || b.content_type}</span>
                       <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
                     </Link>
                   </li>
