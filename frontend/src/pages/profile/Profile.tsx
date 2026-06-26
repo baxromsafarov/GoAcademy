@@ -7,8 +7,10 @@ import { setLang, type Lang } from "@/i18n"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select } from "@/components/ui/select"
 
 const locales = ["ru", "en", "uz", "ja"]
+const localeOptions = locales.map((l) => ({ value: l, label: l.toUpperCase() }))
 
 export function Profile() {
   const { t } = useTranslation()
@@ -121,18 +123,13 @@ export function Profile() {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="locale">{t("auth.language")}</Label>
-          <select
-            id="locale"
+          <Select
             value={form.locale}
-            onChange={(e) => set("locale", e.target.value)}
-            className="h-9 rounded-md border bg-transparent px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {locales.map((l) => (
-              <option key={l} value={l}>
-                {l.toUpperCase()}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => set("locale", v)}
+            options={localeOptions}
+            ariaLabel={t("auth.language")}
+            className="w-40"
+          />
         </div>
 
         <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">

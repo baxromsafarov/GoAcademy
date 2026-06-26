@@ -3,11 +3,9 @@ import { useTranslation } from "react-i18next"
 import { BookOpen, Search } from "lucide-react"
 import { useCheatsheets, type CheatsheetFilters } from "@/lib/queries"
 import { useContentLanguage } from "@/lib/useContentLanguage"
+import { languageOptions } from "@/lib/filterOptions"
 import { ContentCard, Meta } from "@/components/ContentCard"
-
-const langs = ["ru", "en", "uz", "ja"]
-const selectClass =
-  "h-9 rounded-md border bg-transparent px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+import { Select } from "@/components/ui/select"
 
 export function CheatsheetList() {
   const { t } = useTranslation()
@@ -33,21 +31,12 @@ export function CheatsheetList() {
             className="h-9 rounded-md border bg-transparent pr-2 pl-8 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
-        <select
+        <Select
           value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className={selectClass}
-          aria-label={t("videos.filterLanguage")}
-        >
-          <option value="">
-            {t("videos.filterLanguage")}: {t("common.all")}
-          </option>
-          {langs.map((l) => (
-            <option key={l} value={l}>
-              {l.toUpperCase()}
-            </option>
-          ))}
-        </select>
+          onChange={setLanguage}
+          options={languageOptions(t)}
+          ariaLabel={t("videos.filterLanguage")}
+        />
       </div>
 
       {isPending && (

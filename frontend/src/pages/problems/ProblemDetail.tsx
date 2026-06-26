@@ -6,6 +6,7 @@ import { useProblem, useProblemSolution, useSubmitProblem } from "@/lib/queries"
 import type { JudgeVerdict, ProblemSample } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Select } from "@/components/ui/select"
 
 // Markdown carries react-markdown + highlight.js — load it as its own chunk.
 const Markdown = lazy(() => import("@/components/Markdown").then((m) => ({ default: m.Markdown })))
@@ -108,19 +109,13 @@ export function ProblemDetail() {
             <section className="flex flex-col gap-3 lg:sticky lg:top-20">
               <div className="flex items-center justify-between gap-2">
                 <h2 className="text-lg font-semibold">{t("problems.yourSolution")}</h2>
-                <select
-                  id="lang"
-                  aria-label={t("problems.language")}
+                <Select
                   value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="h-9 rounded-md border bg-transparent px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  {languages.map((l) => (
-                    <option key={l} value={l}>
-                      {l}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setLanguage}
+                  options={languages.map((l) => ({ value: l, label: l }))}
+                  ariaLabel={t("problems.language")}
+                  className="w-32"
+                />
               </div>
 
               <Suspense

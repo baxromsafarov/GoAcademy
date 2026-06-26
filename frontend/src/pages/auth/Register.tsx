@@ -7,6 +7,7 @@ import { AuthShell } from "@/components/AuthShell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select } from "@/components/ui/select"
 
 const localeOptions = [
   { value: "ru", label: "Русский" },
@@ -75,18 +76,12 @@ export function Register() {
         </div>
         <div className="flex flex-col gap-1">
           <Label htmlFor="locale">{t("auth.language")}</Label>
-          <select
-            id="locale"
+          <Select
             value={form.locale}
-            onChange={update("locale")}
-            className="h-10 rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {localeOptions.map((l) => (
-              <option key={l.value} value={l.value}>
-                {l.label}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => setForm((f) => ({ ...f, locale: v }))}
+            options={localeOptions}
+            ariaLabel={t("auth.language")}
+          />
         </div>
         {error && <p className="text-sm text-red-500">{error}</p>}
         <Button type="submit" disabled={busy}>

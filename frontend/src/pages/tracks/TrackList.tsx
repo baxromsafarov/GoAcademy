@@ -3,12 +3,9 @@ import { useTranslation } from "react-i18next"
 import { Route } from "lucide-react"
 import { useTracks, type TrackFilters } from "@/lib/queries"
 import { useContentLanguage } from "@/lib/useContentLanguage"
+import { difficultyOptions, languageOptions } from "@/lib/filterOptions"
 import { ContentCard, Meta } from "@/components/ContentCard"
-
-const difficulties = ["beginner", "intermediate", "advanced"]
-const langs = ["ru", "en", "uz", "ja"]
-const selectClass =
-  "h-9 rounded-md border bg-transparent px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+import { Select } from "@/components/ui/select"
 
 export function TrackList() {
   const { t } = useTranslation()
@@ -25,36 +22,18 @@ export function TrackList() {
       <h1 className="text-2xl font-semibold tracking-tight">{t("nav.tracks")}</h1>
 
       <div className="flex flex-wrap gap-2">
-        <select
+        <Select
           value={filters.difficulty ?? ""}
-          onChange={(e) => set("difficulty", e.target.value)}
-          className={selectClass}
-          aria-label={t("videos.filterDifficulty")}
-        >
-          <option value="">
-            {t("videos.filterDifficulty")}: {t("common.all")}
-          </option>
-          {difficulties.map((d) => (
-            <option key={d} value={d}>
-              {t(`difficulty.${d}`)}
-            </option>
-          ))}
-        </select>
-        <select
+          onChange={(v) => set("difficulty", v)}
+          options={difficultyOptions(t)}
+          ariaLabel={t("videos.filterDifficulty")}
+        />
+        <Select
           value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className={selectClass}
-          aria-label={t("videos.filterLanguage")}
-        >
-          <option value="">
-            {t("videos.filterLanguage")}: {t("common.all")}
-          </option>
-          {langs.map((l) => (
-            <option key={l} value={l}>
-              {l.toUpperCase()}
-            </option>
-          ))}
-        </select>
+          onChange={setLanguage}
+          options={languageOptions(t)}
+          ariaLabel={t("videos.filterLanguage")}
+        />
       </div>
 
       {isPending && (

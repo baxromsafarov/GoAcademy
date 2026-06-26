@@ -17,14 +17,26 @@ import "highlight.js/styles/github-dark.css"
 
 const hljsLanguages = { go, bash, shell: bash, json, yaml, sql, dockerfile }
 
-/** extractCode pulls the raw source text out of a fenced code block's rendered
- * <code> element so the "Open in sandbox" button can prefill the editor. */
-function extractCode(children: unknown): string {
-  const el = children as { props?: { children?: unknown } } | null
-  const inner = el?.props?.children
-  if (typeof inner === "string") return inner
-  if (Array.isArray(inner)) return inner.map((c) => (typeof c === "string" ? c : "")).join("")
+/** nodeText walks an arbitrary React node tree and concatenates all of its text.
+ * rehype-highlight wraps keywords, numbers, strings etc. in <span> tokens, so a
+ * shallow "keep only string children" pass would silently drop them — which is
+ * exactly what mangled the code sent to the sandbox. */
+function nodeText(node: unknown): string {
+  if (node == null || typeof node === "boolean") return ""
+  if (typeof node === "string") return node
+  if (typeof node === "number") return String(node)
+  if (Array.isArray(node)) return node.map(nodeText).join("")
+  if (typeof node === "object" && "props" in node) {
+    return nodeText((node as { props?: { children?: unknown } }).props?.children)
+  }
   return ""
+}
+
+/** extractCode pulls the raw source text out of a fenced code block's rendered
+ * <code> element so the "Open in sandbox" button can prefill the editor. It
+ * recurses through the highlight.js token spans to keep the source intact. */
+function extractCode(children: unknown): string {
+  return nodeText(children)
 }
 
 /**
