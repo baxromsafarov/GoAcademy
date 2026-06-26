@@ -1,12 +1,13 @@
 import { useState } from "react"
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { GraduationCap, LogOut, Menu, Moon, Sun } from "lucide-react"
+import { GraduationCap, Menu, Moon, Sun } from "lucide-react"
 import { navGroups } from "@/lib/sections"
 import { useAuth } from "@/lib/auth-context"
 import { useTheme } from "@/lib/theme"
 import { cn } from "@/lib/utils"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
+import { UserMenu } from "@/components/UserMenu"
 
 /** Layout is the app shell: a top bar, a collapsible section sidebar, and the
  * routed page. The sidebar is toggled by the menu button on every screen size;
@@ -14,8 +15,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 export function Layout() {
   const { t } = useTranslation()
   const { theme, toggle } = useTheme()
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const { user } = useAuth()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     const saved = localStorage.getItem("sidebarOpen")
@@ -36,11 +36,6 @@ export function Layout() {
     }
   }
 
-  async function onLogout() {
-    await logout()
-    navigate("/login", { replace: true })
-  }
-
   return (
     <div className="flex min-h-svh flex-col">
       <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-card/80 px-4 backdrop-blur">
@@ -52,21 +47,20 @@ export function Layout() {
         >
           <Menu className="size-5" />
         </button>
-        <div className="flex items-center gap-2 font-semibold">
+        <Link
+          to="/"
+          className="flex items-center gap-2 rounded-md font-semibold transition-opacity hover:opacity-80"
+          aria-label={t("nav.dashboard")}
+        >
           <GraduationCap className="size-6 text-primary" />
           <span>GoAcademy</span>
-        </div>
+        </Link>
         <div className="ml-auto flex items-center gap-2">
-          {user && (
-            <span className="hidden text-sm text-muted-foreground sm:inline">{user.display_name}</span>
-          )}
           <LanguageSwitcher />
           <button className="rounded p-2 hover:bg-accent" onClick={toggle} aria-label="Toggle theme">
             {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
           </button>
-          <button className="rounded p-2 hover:bg-accent" onClick={onLogout} aria-label={t("common.signOut")}>
-            <LogOut className="size-5" />
-          </button>
+          {user && <UserMenu />}
         </div>
       </header>
 
