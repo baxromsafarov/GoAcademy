@@ -16,16 +16,23 @@ SELECT count(*) FROM videos
 WHERE ($1::difficulty IS NULL OR difficulty = $1)
   AND ($2::locale     IS NULL OR language = $2)
   AND ($3::text            IS NULL OR $3 = ANY(tags))
+  AND ($4::text              IS NULL OR title ILIKE '%' || $4 || '%')
 `
 
 type CountVideosParams struct {
 	Difficulty NullDifficulty `json:"difficulty"`
 	Language   NullLocale     `json:"language"`
 	Tag        pgtype.Text    `json:"tag"`
+	Q          pgtype.Text    `json:"q"`
 }
 
 func (q *Queries) CountVideos(ctx context.Context, arg CountVideosParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countVideos, arg.Difficulty, arg.Language, arg.Tag)
+	row := q.db.QueryRow(ctx, countVideos,
+		arg.Difficulty,
+		arg.Language,
+		arg.Tag,
+		arg.Q,
+	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -58,14 +65,16 @@ SELECT id, title, description, youtube_id, duration_seconds, difficulty, tags, l
 WHERE ($1::difficulty IS NULL OR difficulty = $1)
   AND ($2::locale     IS NULL OR language = $2)
   AND ($3::text            IS NULL OR $3 = ANY(tags))
+  AND ($4::text              IS NULL OR title ILIKE '%' || $4 || '%')
 ORDER BY created_at DESC
-LIMIT $5 OFFSET $4
+LIMIT $6 OFFSET $5
 `
 
 type ListVideosParams struct {
 	Difficulty NullDifficulty `json:"difficulty"`
 	Language   NullLocale     `json:"language"`
 	Tag        pgtype.Text    `json:"tag"`
+	Q          pgtype.Text    `json:"q"`
 	Off        int32          `json:"off"`
 	Lim        int32          `json:"lim"`
 }
@@ -75,6 +84,7 @@ func (q *Queries) ListVideos(ctx context.Context, arg ListVideosParams) ([]Video
 		arg.Difficulty,
 		arg.Language,
 		arg.Tag,
+		arg.Q,
 		arg.Off,
 		arg.Lim,
 	)

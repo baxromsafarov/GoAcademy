@@ -23,13 +23,14 @@ func newArticleHandler(svc *content.Service, prog *progress.Service, logger *slo
 	return &articleHandler{svc: svc, progress: prog, logger: logger}
 }
 
-// list handles GET /api/v1/articles?difficulty=&tag=&language=&limit=&offset=.
+// list handles GET /api/v1/articles?difficulty=&tag=&language=&q=&limit=&offset=.
 func (h *articleHandler) list(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	filter := content.ListFilter{
 		Difficulty: optionalQuery(q, "difficulty"),
 		Tag:        optionalQuery(q, "tag"),
 		Language:   optionalQuery(q, "language"),
+		Q:          optionalQuery(q, "q"),
 		Limit:      queryInt(q, "limit", 0),
 		Offset:     queryInt(q, "offset", 0),
 	}

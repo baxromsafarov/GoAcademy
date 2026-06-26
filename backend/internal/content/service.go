@@ -37,6 +37,7 @@ type ListFilter struct {
 	Difficulty *string
 	Tag        *string
 	Language   *string
+	Q          *string // case-insensitive title search (videos/articles)
 	Limit      int
 	Offset     int
 }
@@ -112,6 +113,10 @@ func (s *Service) ListVideos(ctx context.Context, f ListFilter) (VideoList, erro
 		t := pgtype.Text{String: *f.Tag, Valid: true}
 		listParams.Tag, countParams.Tag = t, t
 	}
+	if f.Q != nil {
+		q := pgtype.Text{String: *f.Q, Valid: true}
+		listParams.Q, countParams.Q = q, q
+	}
 
 	items, err := s.queries.ListVideos(ctx, listParams)
 	if err != nil {
@@ -167,6 +172,10 @@ func (s *Service) ListArticles(ctx context.Context, f ListFilter) (ArticleList, 
 	if f.Tag != nil {
 		t := pgtype.Text{String: *f.Tag, Valid: true}
 		listParams.Tag, countParams.Tag = t, t
+	}
+	if f.Q != nil {
+		q := pgtype.Text{String: *f.Q, Valid: true}
+		listParams.Q, countParams.Q = q, q
 	}
 
 	items, err := s.queries.ListArticles(ctx, listParams)
