@@ -38,6 +38,15 @@ Write-Host "2/4  Applying migrations + building backend..." -ForegroundColor Cya
 go -C "$repo\backend" run ./cmd/migrate up
 go -C "$repo\backend" build -o "$repo\backend\bin\goacademy-api.exe" ./cmd/api
 
+# Take over cleanly: free the ports and stop any previous run/tunnel so this
+# launcher owns the stack (e.g. when an earlier instance is still running).
+foreach ($port in 8080, 5173) {
+  Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
+    ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
+}
+Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep -Milliseconds 800
+
 Write-Host "3/4  Launching backend (:8080) and frontend (:5173)..." -ForegroundColor Cyan
 # Backend in its own window (inherits the env above).
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "& '$repo\backend\bin\goacademy-api.exe'"
