@@ -146,6 +146,7 @@ func NewRouter(deps Deps) http.Handler {
 				r.With(auth).Post("/tracks/{id}/enroll", th.enroll)
 				r.With(auth).Delete("/tracks/{id}/enroll", th.unenroll)
 				r.With(auth).Get("/me/tracks", th.myTracks)
+				r.With(auth).Get("/me/recent", th.recentCompletions)
 			}
 
 			rh := newReferenceHandler(deps.Content, deps.Logger)

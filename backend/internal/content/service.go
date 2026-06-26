@@ -5,6 +5,7 @@ package content
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -645,6 +646,42 @@ func (s *Service) ListEnrolledTracks(ctx context.Context, userID string) ([]stor
 		return nil, apierr.Validation("invalid user")
 	}
 	return s.queries.ListEnrolledTracks(ctx, uid)
+}
+
+// RecentCompletion is one finished item in the user's activity feed.
+type RecentCompletion struct {
+	ContentType string
+	ContentID   string
+	Title       string
+	CompletedAt time.Time
+}
+
+// ListRecentCompletions returns the user's most recently finished content
+// (videos watched, articles read, quizzes passed, problems solved).
+func (s *Service) ListRecentCompletions(ctx context.Context, userID string, limit int) ([]RecentCompletion, error) {
+	uid, err := pgxutil.ParseUUID(userID)
+	if err != nil {
+		return nil, apierr.Validation("invalid user")
+	}
+	if limit <= 0 || limit > 50 {
+		limit = 10
+	}
+	rows, err := s.queries.ListRecentCompletions(ctx, store.ListRecentCompletionsParams{
+		UserID: uid, Limit: int32(limit),
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]RecentCompletion, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, RecentCompletion{
+			ContentType: r.ContentType,
+			ContentID:   pgxutil.UUIDString(r.ContentID),
+			Title:       r.Title,
+			CompletedAt: r.CompletedAt.Time,
+		})
+	}
+	return out, nil
 }
 
 // GetQuizDetail returns a quiz with its questions and options (ordered).

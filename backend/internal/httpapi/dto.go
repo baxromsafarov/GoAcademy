@@ -925,6 +925,31 @@ func toCertificateVerificationResponse(v social.CertificateVerification) certifi
 	}
 }
 
+// recentCompletionResponse is one finished item in the user's activity feed.
+type recentCompletionResponse struct {
+	ContentType string    `json:"content_type"`
+	ContentID   string    `json:"content_id"`
+	Title       string    `json:"title"`
+	CompletedAt time.Time `json:"completed_at"`
+}
+
+type recentCompletionsListResponse struct {
+	Items []recentCompletionResponse `json:"items"`
+}
+
+func toRecentCompletionsResponse(rs []content.RecentCompletion) recentCompletionsListResponse {
+	items := make([]recentCompletionResponse, 0, len(rs))
+	for _, r := range rs {
+		items = append(items, recentCompletionResponse{
+			ContentType: r.ContentType,
+			ContentID:   r.ContentID,
+			Title:       r.Title,
+			CompletedAt: r.CompletedAt,
+		})
+	}
+	return recentCompletionsListResponse{Items: items}
+}
+
 // bookmarkResponse is a user's saved reference to content.
 type bookmarkResponse struct {
 	ID          string    `json:"id"`

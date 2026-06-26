@@ -113,3 +113,19 @@ func (h *trackHandler) myTracks(w http.ResponseWriter, r *http.Request) {
 		Items: tracks, Total: int64(len(tracks)), Limit: len(tracks),
 	}))
 }
+
+// recentCompletions handles GET /api/v1/me/recent — the user's most recently
+// finished content (videos, articles, quizzes, problems).
+func (h *trackHandler) recentCompletions(w http.ResponseWriter, r *http.Request) {
+	uid, ok := UserIDFromContext(r.Context())
+	if !ok {
+		respond.Error(w, r, h.logger, apierr.Unauthorized("authentication required"))
+		return
+	}
+	items, err := h.svc.ListRecentCompletions(r.Context(), uid, queryInt(r.URL.Query(), "limit", 8))
+	if err != nil {
+		respond.Error(w, r, h.logger, err)
+		return
+	}
+	respond.JSON(w, http.StatusOK, toRecentCompletionsResponse(items))
+}
