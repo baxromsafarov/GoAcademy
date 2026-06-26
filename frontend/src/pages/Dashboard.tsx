@@ -1,12 +1,17 @@
 import { useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 import {
   Award,
+  Bookmark,
+  ChevronRight,
   Code2,
   FileText,
   FolderKanban,
   Flame,
   HelpCircle,
+  Route,
   TrendingUp,
+  Trophy,
   Video,
   Zap,
   type LucideIcon,
@@ -14,7 +19,16 @@ import {
 import { Card, CardTitle } from "@/components/ui/card"
 import { ActivityHeatmap } from "@/components/ActivityHeatmap"
 import { useAuth } from "@/lib/auth-context"
-import { useActivity, useBadges, useProgressSummary, useStats } from "@/lib/queries"
+import {
+  useActivity,
+  useBadges,
+  useBookmarks,
+  useLeaderboard,
+  useMyTracks,
+  useProgressSummary,
+  useStats,
+} from "@/lib/queries"
+import { contentPath } from "@/lib/contentPath"
 import { cn } from "@/lib/utils"
 
 /** Mirrors the backend curve level = 1 + floor(sqrt(xp/100)); level L starts at
@@ -35,6 +49,10 @@ export function Dashboard() {
   const progress = useProgressSummary()
   const badges = useBadges()
   const activity = useActivity()
+  const leaderboard = useLeaderboard("all", 100)
+  const myTracks = useMyTracks()
+  const bookmarks = useBookmarks()
+  const rank = leaderboard.data?.entries.find((e) => e.user_id === user?.id)?.rank
 
   return (
     <div className="flex flex-col gap-6">
@@ -83,19 +101,21 @@ export function Dashboard() {
           )
         })()}
 
-      {/* Streak stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {/* Streak stats + clickable rank */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.isPending &&
-          [0, 1, 2].map((i) => <Card key={i} className="h-[5.5rem] animate-pulse" />)}
+          [0, 1, 2, 3].map((i) => <Card key={i} className="h-[5.5rem] animate-pulse" />)}
         {stats.isError && <p className="col-span-full text-sm text-red-500">{t("common.error")}</p>}
         {stats.data && (
           <>
             <Stat
-              icon={Zap}
-              tone="amber"
-              label={t("dashboard.xp")}
-              value={stats.data.total_xp}
+              icon={Trophy}
+              tone="violet"
+              label={t("dashboard.rank")}
+              value={rank ? `#${rank}` : "—"}
+              to="/leaderboard"
             />
+            <Stat icon={Zap} tone="amber" label={t("dashboard.xp")} value={stats.data.total_xp} />
             <Stat
               icon={Flame}
               tone="orange"
@@ -155,6 +175,67 @@ export function Dashboard() {
         </Card>
       </div>
 
+      {/* My tracks + saved content */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card>
+          <div className="flex items-center justify-between">
+            <CardTitle>{t("dashboard.myTracks")}</CardTitle>
+            <Link to="/tracks" className="text-xs text-primary hover:underline">
+              {t("common.all")}
+            </Link>
+          </div>
+          {myTracks.isPending && <div className="mt-3 h-20 animate-pulse rounded bg-muted" />}
+          {myTracks.data &&
+            (myTracks.data.items.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">{t("dashboard.noTracks")}</p>
+            ) : (
+              <ul className="mt-3 flex flex-col gap-2">
+                {myTracks.data.items.map((tr) => (
+                  <li key={tr.id}>
+                    <Link
+                      to={`/tracks/${tr.id}`}
+                      className="flex items-center gap-2.5 rounded-lg border bg-card p-2.5 text-sm transition-colors hover:border-primary/50"
+                    >
+                      <Route className="size-4 shrink-0 text-amber-500" />
+                      <span className="flex-1 truncate font-medium">{tr.title}</span>
+                      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ))}
+        </Card>
+
+        <Card>
+          <div className="flex items-center justify-between">
+            <CardTitle>{t("dashboard.saved")}</CardTitle>
+            <Link to="/bookmarks" className="text-xs text-primary hover:underline">
+              {t("common.all")}
+            </Link>
+          </div>
+          {bookmarks.isPending && <div className="mt-3 h-20 animate-pulse rounded bg-muted" />}
+          {bookmarks.data &&
+            (bookmarks.data.bookmarks.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">{t("dashboard.noSaved")}</p>
+            ) : (
+              <ul className="mt-3 flex flex-col gap-2">
+                {bookmarks.data.bookmarks.slice(0, 6).map((b) => (
+                  <li key={b.id}>
+                    <Link
+                      to={contentPath(b.content_type, b.content_id)}
+                      className="flex items-center gap-2.5 rounded-lg border bg-card p-2.5 text-sm transition-colors hover:border-primary/50"
+                    >
+                      <Bookmark className="size-4 shrink-0 text-primary" />
+                      <span className="flex-1 truncate capitalize">{b.content_type}</span>
+                      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ))}
+        </Card>
+      </div>
+
       {/* activity heatmap */}
       <Card>
         <CardTitle>{t("dashboard.activity")}</CardTitle>
@@ -178,6 +259,7 @@ const tones = {
   amber: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
   orange: "bg-orange-500/15 text-orange-600 dark:text-orange-400",
   emerald: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+  violet: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
 }
 
 function Stat({
@@ -185,14 +267,16 @@ function Stat({
   tone,
   label,
   value,
+  to,
 }: {
   icon: LucideIcon
   tone: keyof typeof tones
   label: string
   value: number | string
+  to?: string
 }) {
-  return (
-    <Card className="flex items-center gap-3">
+  const inner = (
+    <>
       <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", tones[tone])}>
         <Icon className="size-5" />
       </div>
@@ -200,8 +284,18 @@ function Stat({
         <div className="truncate text-sm text-muted-foreground">{label}</div>
         <div className="text-xl font-semibold">{value}</div>
       </div>
-    </Card>
+    </>
   )
+  if (to) {
+    return (
+      <Link to={to}>
+        <Card className="flex items-center gap-3 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-sm">
+          {inner}
+        </Card>
+      </Link>
+    )
+  }
+  return <Card className="flex items-center gap-3">{inner}</Card>
 }
 
 function ProgressRow({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: number }) {

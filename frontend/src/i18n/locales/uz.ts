@@ -130,6 +130,8 @@ export const uz: Resources = {
     program: "Dastur",
     course: "Kurs",
     lesson: "{{n}}-dars",
+    enroll: "Trekka yozilish",
+    following: "Yozilgansiz",
     type: {
       video: "Video",
       article: "Maqola",
@@ -285,6 +287,11 @@ export const uz: Resources = {
     activityCount: "{{n}} ta faollik",
     levelProgress: "{{level}}-darajagacha {{xp}} XP",
     maxLevel: "Eng yuqori daraja",
+    rank: "Reyting",
+    myTracks: "Mening treklarim",
+    saved: "Saqlangan",
+    noTracks: "Siz hali hech qaysi trekka yozilmagansiz.",
+    noSaved: "Hozircha hech narsa saqlanmagan.",
   },
   auth: {
     signIn: "Kirish",

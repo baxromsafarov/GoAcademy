@@ -2,6 +2,8 @@ import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import {
   ArrowLeft,
+  Bookmark,
+  BookmarkCheck,
   CheckCircle2,
   ChevronRight,
   Code2,
@@ -11,9 +13,10 @@ import {
   Route,
   Video,
 } from "lucide-react"
-import { useTrack, useTrackProgress } from "@/lib/queries"
+import { useEnrollTrack, useMyTracks, useTrack, useTrackProgress } from "@/lib/queries"
 import type { TrackContentType } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 const typeIcon: Record<TrackContentType, typeof Video> = {
   video: Video,
@@ -43,6 +46,9 @@ export function TrackDetail() {
   const { id = "" } = useParams()
   const track = useTrack(id)
   const progress = useTrackProgress(id)
+  const myTracks = useMyTracks()
+  const enroll = useEnrollTrack()
+  const enrolled = myTracks.data?.items.some((tr) => tr.id === id) ?? false
 
   const completedByKey = new Map<string, boolean>()
   progress.data?.items.forEach((it) =>
@@ -84,7 +90,7 @@ export function TrackDetail() {
             {track.data.description && (
               <p className="mt-2 max-w-2xl text-muted-foreground">{track.data.description}</p>
             )}
-            <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+            <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
               <span className="rounded-md border px-1.5 py-0.5">
                 {t(`difficulty.${track.data.level}`)}
               </span>
@@ -92,6 +98,16 @@ export function TrackDetail() {
                 {track.data.language.toUpperCase()}
               </span>
             </div>
+
+            <Button
+              variant={enrolled ? "outline" : "default"}
+              className="mt-4"
+              disabled={enroll.isPending || myTracks.isPending}
+              onClick={() => enroll.mutate({ id, enrolled })}
+            >
+              {enrolled ? <BookmarkCheck className="size-4" /> : <Bookmark className="size-4" />}
+              {enrolled ? t("tracks.following") : t("tracks.enroll")}
+            </Button>
 
             {/* Segmented sprint progress — one segment per lesson. */}
             {progress.data && (

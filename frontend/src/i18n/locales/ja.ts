@@ -130,6 +130,8 @@ export const ja: Resources = {
     program: "プログラム",
     course: "コース",
     lesson: "レッスン {{n}}",
+    enroll: "トラックを受講",
+    following: "受講中",
     type: {
       video: "動画",
       article: "記事",
@@ -285,6 +287,11 @@ export const ja: Resources = {
     activityCount: "{{n}} 件のアクティビティ",
     levelProgress: "レベル {{level}} まで {{xp}} XP",
     maxLevel: "最高レベルに到達",
+    rank: "ランク",
+    myTracks: "マイトラック",
+    saved: "保存済み",
+    noTracks: "まだトラックを受講していません。",
+    noSaved: "まだ保存されていません。",
   },
   auth: {
     signIn: "ログイン",

@@ -297,6 +297,23 @@ export function useTrackProgress(id: string) {
   })
 }
 
+/** The tracks the current user has enrolled in (followed). */
+export function useMyTracks() {
+  return useQuery({
+    queryKey: ["me", "tracks"],
+    queryFn: () => api.get<TrackListResponse>("/me/tracks"),
+  })
+}
+
+export function useEnrollTrack() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, enrolled }: { id: string; enrolled: boolean }) =>
+      enrolled ? api.del(`/tracks/${id}/enroll`) : api.post(`/tracks/${id}/enroll`, {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["me", "tracks"] }),
+  })
+}
+
 export interface CheatsheetFilters extends PageFilter {
   category?: string
   q?: string
@@ -380,10 +397,11 @@ export function useToggleProjectStep(id: string) {
   })
 }
 
-export function useLeaderboard(period: string) {
+export function useLeaderboard(period: string, limit?: number) {
+  const qs = limit ? `&limit=${limit}` : ""
   return useQuery({
-    queryKey: ["leaderboard", period],
-    queryFn: () => api.get<LeaderboardResponse>(`/leaderboard?period=${period}`),
+    queryKey: ["leaderboard", period, limit],
+    queryFn: () => api.get<LeaderboardResponse>(`/leaderboard?period=${period}${qs}`),
   })
 }
 

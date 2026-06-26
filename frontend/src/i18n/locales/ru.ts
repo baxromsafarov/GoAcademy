@@ -130,6 +130,8 @@ export const ru: Resources = {
     program: "Программа",
     course: "Курс",
     lesson: "Урок {{n}}",
+    enroll: "Записаться на трек",
+    following: "Вы записаны",
     type: {
       video: "Видео",
       article: "Статья",
@@ -285,6 +287,11 @@ export const ru: Resources = {
     activityCount: "активностей: {{n}}",
     levelProgress: "{{xp}} XP до уровня {{level}}",
     maxLevel: "Достигнут максимальный уровень",
+    rank: "Рейтинг",
+    myTracks: "Мои треки",
+    saved: "Сохранённое",
+    noTracks: "Вы ещё не записались ни на один трек.",
+    noSaved: "Пока ничего не сохранено.",
   },
   auth: {
     signIn: "Войти",

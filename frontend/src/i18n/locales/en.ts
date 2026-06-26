@@ -128,6 +128,8 @@ export const en = {
     program: "Program",
     course: "Course",
     lesson: "Lesson {{n}}",
+    enroll: "Follow track",
+    following: "Following",
     type: {
       video: "Video",
       article: "Article",
@@ -283,6 +285,11 @@ export const en = {
     activityCount: "{{n}} activities",
     levelProgress: "{{xp}} XP to level {{level}}",
     maxLevel: "Top level reached",
+    rank: "Rank",
+    myTracks: "My tracks",
+    saved: "Saved",
+    noTracks: "You haven't followed any tracks yet.",
+    noSaved: "Nothing saved yet.",
   },
   auth: {
     signIn: "Sign in",
