@@ -1,5 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { api, ApiError } from "@/lib/api"
+
+/** Pagination shared by every content list filter. */
+export interface PageFilter {
+  limit?: number
+  offset?: number
+}
+
+/** appendPage adds limit/offset to a query string when present (offset may be 0). */
+function appendPage(params: URLSearchParams, f: PageFilter) {
+  if (f.limit != null) params.set("limit", String(f.limit))
+  if (f.offset != null) params.set("offset", String(f.offset))
+}
 import type {
   ActivityResponse,
   AdminUserListResponse,
@@ -57,7 +69,7 @@ export function useActivity() {
   })
 }
 
-export interface VideoFilters {
+export interface VideoFilters extends PageFilter {
   difficulty?: string
   tag?: string
   language?: string
@@ -68,6 +80,7 @@ export function useVideos(filters: VideoFilters = {}) {
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
+  appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
     queryKey: ["videos", filters],
@@ -97,7 +110,7 @@ export function usePostVideoProgress(id: string) {
   })
 }
 
-export interface ArticleFilters {
+export interface ArticleFilters extends PageFilter {
   difficulty?: string
   tag?: string
   language?: string
@@ -108,6 +121,7 @@ export function useArticles(filters: ArticleFilters = {}) {
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
+  appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
     queryKey: ["articles", filters],
@@ -143,7 +157,7 @@ export function useMarkArticleRead(slug: string) {
   })
 }
 
-export interface QuizFilters {
+export interface QuizFilters extends PageFilter {
   difficulty?: string
   tag?: string
   language?: string
@@ -154,6 +168,7 @@ export function useQuizzes(filters: QuizFilters = {}) {
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
+  appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
     queryKey: ["quizzes", filters],
@@ -177,7 +192,7 @@ export function useSubmitQuiz(id: string) {
   })
 }
 
-export interface ProblemFilters {
+export interface ProblemFilters extends PageFilter {
   difficulty?: string
   tag?: string
   language?: string
@@ -188,6 +203,7 @@ export function useProblems(filters: ProblemFilters = {}) {
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
+  appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
     queryKey: ["problems", filters],
@@ -243,7 +259,7 @@ export function useSubmitProblem(slug: string) {
   })
 }
 
-export interface TrackFilters {
+export interface TrackFilters extends PageFilter {
   difficulty?: string
   language?: string
 }
@@ -252,6 +268,7 @@ export function useTracks(filters: TrackFilters = {}) {
   const params = new URLSearchParams()
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.language) params.set("language", filters.language)
+  appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
     queryKey: ["tracks", filters],
@@ -270,7 +287,7 @@ export function useTrackProgress(id: string) {
   })
 }
 
-export interface CheatsheetFilters {
+export interface CheatsheetFilters extends PageFilter {
   category?: string
   q?: string
   language?: string
@@ -281,6 +298,7 @@ export function useCheatsheets(filters: CheatsheetFilters = {}) {
   if (filters.category) params.set("category", filters.category)
   if (filters.q) params.set("q", filters.q)
   if (filters.language) params.set("language", filters.language)
+  appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
     queryKey: ["cheatsheets", filters],
@@ -295,10 +313,11 @@ export function useCheatsheet(id: string) {
   })
 }
 
-export function useGlossary(filters: { q?: string; language?: string } = {}) {
+export function useGlossary(filters: { q?: string; language?: string } & PageFilter = {}) {
   const params = new URLSearchParams()
   if (filters.q) params.set("q", filters.q)
   if (filters.language) params.set("language", filters.language)
+  appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
     queryKey: ["glossary", filters],
@@ -306,7 +325,7 @@ export function useGlossary(filters: { q?: string; language?: string } = {}) {
   })
 }
 
-export interface ProjectFilters {
+export interface ProjectFilters extends PageFilter {
   difficulty?: string
   tag?: string
   language?: string
@@ -317,6 +336,7 @@ export function useProjects(filters: ProjectFilters = {}) {
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
+  appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
     queryKey: ["projects", filters],

@@ -34,6 +34,10 @@ export const ru: Resources = {
     all: "Все",
     back: "Назад",
     search: "Поиск…",
+    prev: "Назад",
+    next: "Вперёд",
+    pageOf: "Страница {{page}} из {{pages}}",
+    filterTag: "Тег…",
   },
   difficulty: {
     beginner: "Начальный",

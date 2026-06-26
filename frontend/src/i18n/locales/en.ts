@@ -32,6 +32,10 @@ export const en = {
     all: "All",
     back: "Back",
     search: "Search…",
+    prev: "Prev",
+    next: "Next",
+    pageOf: "Page {{page}} of {{pages}}",
+    filterTag: "Tag…",
   },
   difficulty: {
     beginner: "Beginner",

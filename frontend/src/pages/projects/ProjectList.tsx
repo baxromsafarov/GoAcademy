@@ -1,21 +1,22 @@
-import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { FolderKanban } from "lucide-react"
-import { useProjects, type ProjectFilters } from "@/lib/queries"
-import { useContentLanguage } from "@/lib/useContentLanguage"
+import { useProjects } from "@/lib/queries"
+import { useListParams } from "@/lib/useListParams"
 import { difficultyOptions, languageOptions } from "@/lib/filterOptions"
 import { ContentCard, Meta } from "@/components/ContentCard"
 import { Select } from "@/components/ui/select"
+import { Pagination } from "@/components/Pagination"
 
 export function ProjectList() {
   const { t } = useTranslation()
-  const [filters, setFilters] = useState<ProjectFilters>({})
-  const [language, setLanguage] = useContentLanguage()
-  const { data, isPending, isError } = useProjects({ ...filters, language: language || undefined })
-
-  function set(key: keyof ProjectFilters, value: string) {
-    setFilters((f) => ({ ...f, [key]: value || undefined }))
-  }
+  const { get, language, offset, pageSize, page, setParam, setLanguage, setPage } = useListParams()
+  const { data, isPending, isError } = useProjects({
+    difficulty: get("difficulty") || undefined,
+    tag: get("tag") || undefined,
+    language: language || undefined,
+    limit: pageSize,
+    offset,
+  })
 
   return (
     <div className="flex flex-col gap-4">
@@ -23,8 +24,8 @@ export function ProjectList() {
 
       <div className="flex flex-wrap gap-2">
         <Select
-          value={filters.difficulty ?? ""}
-          onChange={(v) => set("difficulty", v)}
+          value={get("difficulty")}
+          onChange={(v) => setParam("difficulty", v)}
           options={difficultyOptions(t)}
           ariaLabel={t("videos.filterDifficulty")}
         />
@@ -33,6 +34,12 @@ export function ProjectList() {
           onChange={setLanguage}
           options={languageOptions(t)}
           ariaLabel={t("videos.filterLanguage")}
+        />
+        <input
+          value={get("tag")}
+          onChange={(e) => setParam("tag", e.target.value)}
+          placeholder={t("common.filterTag")}
+          className="h-9 w-28 rounded-md border bg-transparent px-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
       </div>
 
@@ -48,26 +55,29 @@ export function ProjectList() {
         (data.items.length === 0 ? (
           <p className="text-muted-foreground">{t("projects.empty")}</p>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {data.items.map((p) => (
-              <ContentCard
-                key={p.id}
-                to={`/projects/${p.id}`}
-                title={p.title}
-                Icon={FolderKanban}
-                accentClass="bg-gradient-to-br from-rose-500/25 via-rose-500/10 to-transparent"
-                badges={
-                  <>
-                    <Meta>{t(`difficulty.${p.difficulty}`)}</Meta>
-                    <Meta>{p.language.toUpperCase()}</Meta>
-                    {p.tags.slice(0, 2).map((tag) => (
-                      <Meta key={tag}>#{tag}</Meta>
-                    ))}
-                  </>
-                }
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {data.items.map((p) => (
+                <ContentCard
+                  key={p.id}
+                  to={`/projects/${p.id}`}
+                  title={p.title}
+                  Icon={FolderKanban}
+                  accentClass="bg-gradient-to-br from-rose-500/25 via-rose-500/10 to-transparent"
+                  badges={
+                    <>
+                      <Meta>{t(`difficulty.${p.difficulty}`)}</Meta>
+                      <Meta>{p.language.toUpperCase()}</Meta>
+                      {p.tags.slice(0, 2).map((tag) => (
+                        <Meta key={tag}>#{tag}</Meta>
+                      ))}
+                    </>
+                  }
+                />
+              ))}
+            </div>
+            <Pagination page={page} pageSize={pageSize} total={data.total} onPage={setPage} />
+          </>
         ))}
     </div>
   )

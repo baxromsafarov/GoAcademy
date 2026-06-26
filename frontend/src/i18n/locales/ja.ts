@@ -34,6 +34,10 @@ export const ja: Resources = {
     all: "すべて",
     back: "戻る",
     search: "検索…",
+    prev: "前へ",
+    next: "次へ",
+    pageOf: "{{pages}} ページ中 {{page}}",
+    filterTag: "タグ…",
   },
   difficulty: {
     beginner: "初級",

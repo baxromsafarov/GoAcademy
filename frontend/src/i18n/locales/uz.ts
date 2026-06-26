@@ -34,6 +34,10 @@ export const uz: Resources = {
     all: "Barchasi",
     back: "Orqaga",
     search: "Qidirish…",
+    prev: "Oldingi",
+    next: "Keyingi",
+    pageOf: "{{pages}} dan {{page}}-sahifa",
+    filterTag: "Teg…",
   },
   difficulty: {
     beginner: "Boshlangʻich",
