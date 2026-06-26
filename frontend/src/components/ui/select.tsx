@@ -66,7 +66,7 @@ export function Select({
       {open && (
         <ul
           role="listbox"
-          className="absolute left-0 z-50 mt-1 max-h-64 min-w-full overflow-auto rounded-md border bg-card py-1 text-foreground shadow-lg"
+          className="animate-pop absolute left-0 z-50 mt-1 max-h-64 min-w-full overflow-auto rounded-md border bg-card py-1 text-foreground shadow-lg"
         >
           {options.map((o) => (
             <li key={o.value}>

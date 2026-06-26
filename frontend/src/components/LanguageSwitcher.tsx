@@ -50,7 +50,7 @@ export function LanguageSwitcher() {
       {open && (
         <ul
           role="listbox"
-          className="absolute right-0 z-50 mt-1 w-36 overflow-hidden rounded-md border bg-card py-1 text-foreground shadow-lg"
+          className="animate-pop absolute right-0 z-50 mt-1 w-36 overflow-hidden rounded-md border bg-card py-1 text-foreground shadow-lg"
         >
           {supportedLngs.map((l) => (
             <li key={l}>

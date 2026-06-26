@@ -16,6 +16,12 @@ export const en = {
     profile: "Profile",
     admin: "Admin",
   },
+  navGroup: {
+    learn: "Learn",
+    practice: "Practice",
+    progress: "Progress",
+    account: "Account",
+  },
   common: {
     loading: "Loading…",
     signOut: "Sign out",

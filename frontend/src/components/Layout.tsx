@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { NavLink, Outlet, useNavigate } from "react-router-dom"
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { GraduationCap, LogOut, Menu, Moon, Sun } from "lucide-react"
-import { sections } from "@/lib/sections"
+import { navGroups } from "@/lib/sections"
 import { useAuth } from "@/lib/auth-context"
 import { useTheme } from "@/lib/theme"
 import { cn } from "@/lib/utils"
@@ -16,6 +16,7 @@ export function Layout() {
   const { theme, toggle } = useTheme()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     const saved = localStorage.getItem("sidebarOpen")
     return saved === null ? true : saved === "true"
@@ -86,35 +87,50 @@ export function Layout() {
             sidebarOpen ? "block" : "hidden",
           )}
         >
-          <nav className="flex flex-col gap-1">
-            {sections
-              .filter((s) => !s.adminOnly || user?.role === "admin")
-              .map((s) => {
-              const Icon = s.icon
+          <nav className="flex flex-col gap-4">
+            {navGroups.map((group, gi) => {
+              const items = group.items.filter((s) => !s.adminOnly || user?.role === "admin")
+              if (items.length === 0) return null
               return (
-                <NavLink
-                  key={s.path}
-                  to={s.path}
-                  end={s.path === "/"}
-                  onClick={onNavigate}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
-                      isActive &&
-                        "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+                <div key={group.titleKey ?? gi} className="flex flex-col gap-1">
+                  {group.titleKey && (
+                    <span className="px-3 pb-1 text-xs font-semibold tracking-wider text-muted-foreground/70 uppercase">
+                      {t(group.titleKey)}
+                    </span>
+                  )}
+                  {items.map((s) => {
+                    const Icon = s.icon
+                    return (
+                      <NavLink
+                        key={s.path}
+                        to={s.path}
+                        end={s.path === "/"}
+                        onClick={onNavigate}
+                        className={({ isActive }) =>
+                          cn(
+                            "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+                            isActive &&
+                              "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+                          )
+                        }
+                      >
+                        <Icon className="size-4" />
+                        {t(s.labelKey)}
+                      </NavLink>
                     )
-                  }
-                >
-                  <Icon className="size-4" />
-                  {t(s.labelKey)}
-                </NavLink>
+                  })}
+                </div>
               )
             })}
           </nav>
         </aside>
 
         <main className="flex-1 overflow-x-hidden">
-          <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-8 md:py-8">
+          {/* Keyed on the path so routed content re-plays the enter animation. */}
+          <div
+            key={location.pathname}
+            className="animate-page mx-auto w-full max-w-5xl px-4 py-6 md:px-8 md:py-8"
+          >
             <Outlet />
           </div>
         </main>

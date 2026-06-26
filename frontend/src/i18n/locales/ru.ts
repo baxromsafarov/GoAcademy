@@ -18,6 +18,12 @@ export const ru: Resources = {
     profile: "Профиль",
     admin: "Админ",
   },
+  navGroup: {
+    learn: "Обучение",
+    practice: "Практика",
+    progress: "Прогресс",
+    account: "Аккаунт",
+  },
   common: {
     loading: "Загрузка…",
     signOut: "Выйти",

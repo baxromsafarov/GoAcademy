@@ -89,3 +89,43 @@
     background-clip: content-box;
   }
 }
+
+/* Motion: a gentle page-enter for routed content and a quick pop for popups.
+   Respect users who prefer reduced motion. */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-page {
+  animation: fade-in-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-pop {
+  transform-origin: top;
+  animation: pop-in 0.14s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page,
+  .animate-pop {
+    animation: none;
+  }
+}

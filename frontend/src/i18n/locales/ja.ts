@@ -18,6 +18,12 @@ export const ja: Resources = {
     profile: "プロフィール",
     admin: "管理",
   },
+  navGroup: {
+    learn: "学習",
+    practice: "練習",
+    progress: "進捗",
+    account: "アカウント",
+  },
   common: {
     loading: "読み込み中…",
     signOut: "ログアウト",

@@ -18,6 +18,12 @@ export const uz: Resources = {
     profile: "Profil",
     admin: "Admin",
   },
+  navGroup: {
+    learn: "O'rganish",
+    practice: "Amaliyot",
+    progress: "Progress",
+    account: "Hisob",
+  },
   common: {
     loading: "Yuklanmoqda…",
     signOut: "Chiqish",
