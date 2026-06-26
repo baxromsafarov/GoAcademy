@@ -38,6 +38,7 @@ export const uz: Resources = {
     next: "Keyingi",
     pageOf: "{{pages}} dan {{page}}-sahifa",
     filterTag: "Teg…",
+    perPage: "{{n}} / sahifa",
   },
   difficulty: {
     beginner: "Boshlangʻich",

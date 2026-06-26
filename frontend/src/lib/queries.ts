@@ -73,6 +73,7 @@ export interface VideoFilters extends PageFilter {
   difficulty?: string
   tag?: string
   language?: string
+  q?: string
 }
 
 export function useVideos(filters: VideoFilters = {}) {
@@ -80,6 +81,7 @@ export function useVideos(filters: VideoFilters = {}) {
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
+  if (filters.q) params.set("q", filters.q)
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
@@ -114,6 +116,7 @@ export interface ArticleFilters extends PageFilter {
   difficulty?: string
   tag?: string
   language?: string
+  q?: string
 }
 
 export function useArticles(filters: ArticleFilters = {}) {
@@ -121,6 +124,7 @@ export function useArticles(filters: ArticleFilters = {}) {
   if (filters.difficulty) params.set("difficulty", filters.difficulty)
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
+  if (filters.q) params.set("q", filters.q)
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({

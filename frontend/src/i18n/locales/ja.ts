@@ -38,6 +38,7 @@ export const ja: Resources = {
     next: "次へ",
     pageOf: "{{pages}} ページ中 {{page}}",
     filterTag: "タグ…",
+    perPage: "{{n}} / ページ",
   },
   difficulty: {
     beginner: "初級",

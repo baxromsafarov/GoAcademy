@@ -38,6 +38,7 @@ export const ru: Resources = {
     next: "Вперёд",
     pageOf: "Страница {{page}} из {{pages}}",
     filterTag: "Тег…",
+    perPage: "{{n}} / стр.",
   },
   difficulty: {
     beginner: "Начальный",

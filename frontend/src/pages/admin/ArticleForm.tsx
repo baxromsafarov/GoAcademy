@@ -6,11 +6,11 @@ import { useArticle, useSaveArticle, type AdminArticleInput } from "@/lib/querie
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select } from "@/components/ui/select"
 
 const difficulties = ["beginner", "intermediate", "advanced"]
 const langs = ["ru", "en", "uz", "ja"]
-const selectClass =
-  "h-9 rounded-md border bg-transparent px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+const langOptions = langs.map((l) => ({ value: l, label: l.toUpperCase() }))
 
 export function ArticleForm() {
   const { t } = useTranslation()
@@ -92,31 +92,23 @@ export function ArticleForm() {
         <div className="flex flex-wrap gap-4">
           <div className="flex flex-col gap-1.5">
             <Label>{t("videos.filterDifficulty")}</Label>
-            <select
+            <Select
               value={value.difficulty}
-              onChange={(e) => set("difficulty", e.target.value)}
-              className={selectClass}
-            >
-              {difficulties.map((d) => (
-                <option key={d} value={d}>
-                  {t(`difficulty.${d}`)}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => set("difficulty", v)}
+              options={difficulties.map((d) => ({ value: d, label: t(`difficulty.${d}`) }))}
+              ariaLabel={t("videos.filterDifficulty")}
+              className="w-44"
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>{t("videos.filterLanguage")}</Label>
-            <select
+            <Select
               value={value.language}
-              onChange={(e) => set("language", e.target.value)}
-              className={selectClass}
-            >
-              {langs.map((l) => (
-                <option key={l} value={l}>
-                  {l.toUpperCase()}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => set("language", v)}
+              options={langOptions}
+              ariaLabel={t("videos.filterLanguage")}
+              className="w-28"
+            />
           </div>
         </div>
         <div className="flex flex-col gap-1.5">

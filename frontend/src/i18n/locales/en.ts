@@ -36,6 +36,7 @@ export const en = {
     next: "Next",
     pageOf: "Page {{page}} of {{pages}}",
     filterTag: "Tag…",
+    perPage: "{{n}} / page",
   },
   difficulty: {
     beginner: "Beginner",

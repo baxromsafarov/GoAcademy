@@ -1,8 +1,11 @@
 import { useSearchParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
-/** Items per page for content lists. A multiple of the 1/2/3-column grids. */
+/** Default items per page for content lists. A multiple of the 1/2/3 columns. */
 export const PAGE_SIZE = 12
+
+/** Selectable page sizes (used by the admin page-size picker). */
+export const PAGE_SIZES = [12, 24, 48, 96]
 
 /**
  * useListParams keeps a content list's filters and page in the URL query string.
@@ -23,8 +26,11 @@ export function useListParams() {
   const langParam = sp.get("lang")
   const language = langParam === null ? ui : langParam === "all" ? "" : langParam
 
+  const sizeParam = Number(sp.get("size"))
+  const pageSize = PAGE_SIZES.includes(sizeParam) ? sizeParam : PAGE_SIZE
+
   const page = Math.max(1, Number(sp.get("page")) || 1)
-  const offset = (page - 1) * PAGE_SIZE
+  const offset = (page - 1) * pageSize
 
   function patch(updates: Record<string, string | null>, resetPage = true) {
     const next = new URLSearchParams(sp)
@@ -41,11 +47,13 @@ export function useListParams() {
     language,
     page,
     offset,
-    pageSize: PAGE_SIZE,
+    pageSize,
     /** Set (or clear, when empty) a filter param; resets to the first page. */
     setParam: (key: string, value: string) => patch({ [key]: value }),
     /** "" selects all languages; otherwise pins a specific language. */
     setLanguage: (value: string) => patch({ lang: value === "" ? "all" : value }),
     setPage: (p: number) => patch({ page: p <= 1 ? null : String(p) }, false),
+    /** Change the page size; resets to the first page. */
+    setSize: (value: string) => patch({ size: Number(value) === PAGE_SIZE ? null : value }),
   }
 }

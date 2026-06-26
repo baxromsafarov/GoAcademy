@@ -6,11 +6,11 @@ import { useVideo, useSaveVideo, type AdminVideoInput } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select } from "@/components/ui/select"
 
 const difficulties = ["beginner", "intermediate", "advanced"]
 const langs = ["ru", "en", "uz", "ja"]
-const selectClass =
-  "h-9 rounded-md border bg-transparent px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+const langOptions = langs.map((l) => ({ value: l, label: l.toUpperCase() }))
 
 export function VideoForm() {
   const { t } = useTranslation()
@@ -93,30 +93,22 @@ export function VideoForm() {
         </Field>
         <div className="flex flex-wrap gap-4">
           <Field label={t("videos.filterDifficulty")}>
-            <select
+            <Select
               value={value.difficulty}
-              onChange={(e) => set("difficulty", e.target.value)}
-              className={selectClass}
-            >
-              {difficulties.map((d) => (
-                <option key={d} value={d}>
-                  {t(`difficulty.${d}`)}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => set("difficulty", v)}
+              options={difficulties.map((d) => ({ value: d, label: t(`difficulty.${d}`) }))}
+              ariaLabel={t("videos.filterDifficulty")}
+              className="w-44"
+            />
           </Field>
           <Field label={t("videos.filterLanguage")}>
-            <select
+            <Select
               value={value.language}
-              onChange={(e) => set("language", e.target.value)}
-              className={selectClass}
-            >
-              {langs.map((l) => (
-                <option key={l} value={l}>
-                  {l.toUpperCase()}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => set("language", v)}
+              options={langOptions}
+              ariaLabel={t("videos.filterLanguage")}
+              className="w-28"
+            />
           </Field>
         </div>
         <Field label={t("admin.fTags")}>
