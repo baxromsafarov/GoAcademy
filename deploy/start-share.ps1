@@ -14,6 +14,8 @@ $ErrorActionPreference = "Stop"
 $repo = (Resolve-Path "$PSScriptRoot\..").Path
 $nodeDir = "C:\Program Files\nodejs"
 if (Test-Path $nodeDir) { $env:Path = "$nodeDir;$env:Path" }
+$goDir = "C:\Program Files\Go\bin"
+if (Test-Path $goDir) { $env:Path = "$goDir;$env:Path" }
 
 # ---- backend configuration (dev defaults) ----
 $env:DATABASE_URL            = "postgres://goacademy:goacademy_dev_password@localhost:5432/goacademy?sslmode=disable"
