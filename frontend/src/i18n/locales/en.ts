@@ -268,6 +268,8 @@ export const en = {
     addItem: "Add item",
     remove: "Remove",
     answersHidden: "For security, existing answers/solutions are not pre-filled — re-enter them to change.",
+    hiddenToggle: "Hidden (don't show to students)",
+    hiddenBadge: "Hidden",
   },
   dashboard: {
     title: "Dashboard",

@@ -17,6 +17,7 @@ WHERE ($1::difficulty IS NULL OR difficulty = $1)
   AND ($2::locale     IS NULL OR language = $2)
   AND ($3::text            IS NULL OR $3 = ANY(tags))
   AND ($4::text              IS NULL OR title ILIKE '%' || $4 || '%')
+  AND ($5::bool OR NOT ('hidden' = ANY(tags)))
 `
 
 type CountProjectsParams struct {
@@ -24,6 +25,7 @@ type CountProjectsParams struct {
 	Language   NullLocale     `json:"language"`
 	Tag        pgtype.Text    `json:"tag"`
 	Q          pgtype.Text    `json:"q"`
+	ShowHidden bool           `json:"show_hidden"`
 }
 
 func (q *Queries) CountProjects(ctx context.Context, arg CountProjectsParams) (int64, error) {
@@ -32,6 +34,7 @@ func (q *Queries) CountProjects(ctx context.Context, arg CountProjectsParams) (i
 		arg.Language,
 		arg.Tag,
 		arg.Q,
+		arg.ShowHidden,
 	)
 	var count int64
 	err := row.Scan(&count)
@@ -114,8 +117,9 @@ WHERE ($1::difficulty IS NULL OR difficulty = $1)
   AND ($2::locale     IS NULL OR language = $2)
   AND ($3::text            IS NULL OR $3 = ANY(tags))
   AND ($4::text              IS NULL OR title ILIKE '%' || $4 || '%')
+  AND ($5::bool OR NOT ('hidden' = ANY(tags)))
 ORDER BY created_at DESC
-LIMIT $6 OFFSET $5
+LIMIT $7 OFFSET $6
 `
 
 type ListProjectsParams struct {
@@ -123,6 +127,7 @@ type ListProjectsParams struct {
 	Language   NullLocale     `json:"language"`
 	Tag        pgtype.Text    `json:"tag"`
 	Q          pgtype.Text    `json:"q"`
+	ShowHidden bool           `json:"show_hidden"`
 	Off        int32          `json:"off"`
 	Lim        int32          `json:"lim"`
 }
@@ -133,6 +138,7 @@ func (q *Queries) ListProjects(ctx context.Context, arg ListProjectsParams) ([]M
 		arg.Language,
 		arg.Tag,
 		arg.Q,
+		arg.ShowHidden,
 		arg.Off,
 		arg.Lim,
 	)

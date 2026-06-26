@@ -13,6 +13,7 @@ export function AdminProblems() {
   const { t } = useTranslation()
   const lp = useListParams()
   const { data, isPending, isError } = useProblems({
+    show_hidden: true,
     q: lp.get("q") || undefined,
     difficulty: lp.get("difficulty") || undefined,
     language: lp.language || undefined,
@@ -66,6 +67,7 @@ export function AdminProblems() {
               <Meta>{p.language.toUpperCase()}</Meta>
             </>
           }
+          hidden={p.tags.includes("hidden")}
           deleting={remove.isPending}
           onDelete={() => {
             if (confirm(t("admin.confirmDelete"))) remove.mutate(p.id)

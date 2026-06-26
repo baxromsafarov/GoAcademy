@@ -60,6 +60,25 @@ func RequireRole(role string) func(http.Handler) http.Handler {
 	}
 }
 
+// OptionalAuth populates the user id and role in context when a valid Bearer
+// token is present, but never rejects the request. It is for endpoints that are
+// public yet behave differently for an authenticated (e.g. admin) caller — such
+// as content lists that reveal hidden items only to admins.
+func OptionalAuth(tokens *auth.TokenManager) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if token, ok := bearerToken(r.Header.Get("Authorization")); ok {
+				if claims, err := tokens.ParseAccess(token); err == nil {
+					ctx := context.WithValue(r.Context(), ctxUserID, claims.UserID)
+					ctx = context.WithValue(ctx, ctxRole, claims.Role)
+					r = r.WithContext(ctx)
+				}
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 func bearerToken(header string) (string, bool) {
 	const prefix = "Bearer "
 	if len(header) <= len(prefix) || !strings.EqualFold(header[:len(prefix)], prefix) {

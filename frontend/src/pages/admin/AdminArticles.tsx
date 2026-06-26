@@ -17,6 +17,7 @@ export function AdminArticles() {
   const { get, language, offset, pageSize, page, setParam, setLanguage, setPage, setSize } =
     useListParams()
   const { data, isPending, isError } = useArticles({
+    show_hidden: true,
     q: get("q") || undefined,
     difficulty: get("difficulty") || undefined,
     language: language || undefined,
@@ -93,6 +94,7 @@ export function AdminArticles() {
                       <Meta>{a.language.toUpperCase()}</Meta>
                     </>
                   }
+                  hidden={a.tags.includes("hidden")}
                   deleting={remove.isPending}
                   onDelete={() => {
                     if (confirm(t("admin.confirmDelete"))) remove.mutate(a.id)

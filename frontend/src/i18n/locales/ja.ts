@@ -270,6 +270,8 @@ export const ja: Resources = {
     addItem: "項目を追加",
     remove: "削除",
     answersHidden: "セキュリティのため既存の解答・解説は事前入力されません。変更するには再入力してください。",
+    hiddenToggle: "非表示（学生に表示しない）",
+    hiddenBadge: "非表示",
   },
   dashboard: {
     title: "ダッシュボード",

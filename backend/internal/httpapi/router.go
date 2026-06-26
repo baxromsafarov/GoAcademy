@@ -95,8 +95,15 @@ func NewRouter(deps Deps) http.Handler {
 
 		// Content read routes (public) + authenticated progress write.
 		if deps.Content != nil {
+			// Optional auth on list routes so admins (with ?show_hidden=true) can
+			// see hidden content; everyone else only sees published items.
+			optAuth := func(next http.Handler) http.Handler { return next }
+			if deps.Tokens != nil {
+				optAuth = OptionalAuth(deps.Tokens)
+			}
+
 			vh := newVideoHandler(deps.Content, deps.Progress, deps.Logger)
-			r.Get("/videos", vh.list)
+			r.With(optAuth).Get("/videos", vh.list)
 			r.Get("/videos/{id}", vh.get)
 			if deps.Progress != nil && deps.Tokens != nil {
 				r.Group(func(r chi.Router) {
@@ -107,7 +114,7 @@ func NewRouter(deps Deps) http.Handler {
 			}
 
 			ah := newArticleHandler(deps.Content, deps.Progress, deps.Logger)
-			r.Get("/articles", ah.list)
+			r.With(optAuth).Get("/articles", ah.list)
 			r.Get("/articles/{slug}", ah.get)
 			if deps.Progress != nil && deps.Tokens != nil {
 				r.Group(func(r chi.Router) {
@@ -118,14 +125,14 @@ func NewRouter(deps Deps) http.Handler {
 			}
 
 			qh := newQuizHandler(deps.Content, deps.Quiz, deps.Logger)
-			r.Get("/quizzes", qh.list)
+			r.With(optAuth).Get("/quizzes", qh.list)
 			r.Get("/quizzes/{id}", qh.get)
 			if deps.Quiz != nil && deps.Tokens != nil {
 				r.With(RequireAuth(deps.Tokens, deps.Logger)).Post("/quizzes/{id}/attempts", qh.submit)
 			}
 
 			ph := newProblemHandler(deps.Content, deps.Progress, deps.Judge, deps.Logger)
-			r.Get("/problems", ph.list)
+			r.With(optAuth).Get("/problems", ph.list)
 			r.Get("/problems/{slug}", ph.get)
 			if deps.Progress != nil && deps.Tokens != nil {
 				r.Group(func(r chi.Router) {
@@ -155,7 +162,7 @@ func NewRouter(deps Deps) http.Handler {
 			r.Get("/glossary", rh.listGlossary)
 
 			projh := newProjectHandler(deps.Content, deps.Progress, deps.Logger)
-			r.Get("/projects", projh.list)
+			r.With(optAuth).Get("/projects", projh.list)
 			r.Get("/projects/{id}", projh.get)
 			if deps.Progress != nil && deps.Tokens != nil {
 				r.Group(func(r chi.Router) {

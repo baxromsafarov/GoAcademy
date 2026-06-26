@@ -55,6 +55,39 @@ export function AdminFormShell({
   )
 }
 
+/**
+ * VisibilityField is the show/hide toggle. Visibility is stored as a "hidden"
+ * tag on the content; checking the box adds it (and the public lists then skip
+ * the item), unchecking removes it.
+ */
+export function VisibilityField({
+  tags,
+  onChange,
+}: {
+  tags: string[]
+  onChange: (tags: string[]) => void
+}) {
+  const { t } = useTranslation()
+  const hidden = tags.includes("hidden")
+  return (
+    <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
+      <input
+        type="checkbox"
+        checked={hidden}
+        onChange={(e) =>
+          onChange(
+            e.target.checked
+              ? [...tags.filter((x) => x !== "hidden"), "hidden"]
+              : tags.filter((x) => x !== "hidden"),
+          )
+        }
+        className="size-4 accent-primary"
+      />
+      {t("admin.hiddenToggle")}
+    </label>
+  )
+}
+
 /** Plain textarea styled for the admin forms. */
 export function TextArea({
   value,

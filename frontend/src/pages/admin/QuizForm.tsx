@@ -6,7 +6,7 @@ import { useQuiz, useSaveQuiz, type AdminQuizInput } from "@/lib/queries"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select } from "@/components/ui/select"
-import { AdminFormShell, Field, TextArea } from "@/components/admin/AdminFormShell"
+import { AdminFormShell, Field, TextArea, VisibilityField } from "@/components/admin/AdminFormShell"
 
 const langOptions = ["ru", "en", "uz", "ja"].map((l) => ({ value: l, label: l.toUpperCase() }))
 const diffs = ["beginner", "intermediate", "advanced"]
@@ -118,6 +118,7 @@ export function QuizForm() {
           placeholder={t("admin.tagsHint")}
         />
       </Field>
+      <VisibilityField tags={value.tags} onChange={(tags) => set("tags", tags)} />
 
       {editing && <p className="text-xs text-amber-600 dark:text-amber-400">{t("admin.answersHidden")}</p>}
 

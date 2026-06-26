@@ -31,10 +31,11 @@ func (h *videoHandler) list(w http.ResponseWriter, r *http.Request) {
 	filter := content.ListFilter{
 		Difficulty: optionalQuery(q, "difficulty"),
 		Tag:        optionalQuery(q, "tag"),
-		Language:   optionalQuery(q, "language"),
-		Q:          optionalQuery(q, "q"),
-		Limit:      queryInt(q, "limit", 0),
-		Offset:     queryInt(q, "offset", 0),
+		Language:      optionalQuery(q, "language"),
+		Q:             optionalQuery(q, "q"),
+		IncludeHidden: adminWantsHidden(r),
+		Limit:         queryInt(q, "limit", 0),
+		Offset:        queryInt(q, "offset", 0),
 	}
 
 	list, err := h.svc.ListVideos(r.Context(), filter)
@@ -118,4 +119,12 @@ func queryInt(q url.Values, key string, fallback int) int {
 		}
 	}
 	return fallback
+}
+
+// adminWantsHidden reports whether the caller is an authenticated admin asking
+// to include hidden content (?show_hidden=true). Content lists use it so admins
+// can manage hidden items while students never see them.
+func adminWantsHidden(r *http.Request) bool {
+	role, ok := RoleFromContext(r.Context())
+	return ok && role == "admin" && r.URL.Query().Get("show_hidden") == "true"
 }

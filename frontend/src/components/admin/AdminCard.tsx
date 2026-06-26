@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { Pencil, Trash2, type LucideIcon } from "lucide-react"
+import { EyeOff, Pencil, Trash2, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 /**
@@ -20,6 +20,7 @@ export function AdminCard({
   badges,
   onDelete,
   deleting,
+  hidden,
 }: {
   editTo: string
   title: string
@@ -31,10 +32,21 @@ export function AdminCard({
   badges?: ReactNode
   onDelete: () => void
   deleting?: boolean
+  hidden?: boolean
 }) {
   const { t } = useTranslation()
   return (
-    <div className="group flex flex-col overflow-hidden rounded-xl border bg-card transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg hover:shadow-black/20">
+    <div
+      className={cn(
+        "group relative flex flex-col overflow-hidden rounded-xl border bg-card transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg hover:shadow-black/20",
+        hidden && "opacity-60",
+      )}
+    >
+      {hidden && (
+        <span className="absolute z-10 m-2 flex items-center gap-1 rounded bg-black/70 px-1.5 py-0.5 text-xs font-medium text-white">
+          <EyeOff className="size-3" /> {t("admin.hiddenBadge")}
+        </span>
+      )}
       <Link to={editTo} className="block">
         <div
           className={cn(

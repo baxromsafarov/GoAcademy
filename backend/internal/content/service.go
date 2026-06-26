@@ -35,12 +35,13 @@ func NewService(pool *pgxpool.Pool) *Service {
 // ListFilter holds the optional list filters and pagination window shared by all
 // content list endpoints (videos, articles, ...).
 type ListFilter struct {
-	Difficulty *string
-	Tag        *string
-	Language   *string
-	Q          *string // case-insensitive title search (videos/articles)
-	Limit      int
-	Offset     int
+	Difficulty   *string
+	Tag          *string
+	Language     *string
+	Q            *string // case-insensitive title search (videos/articles)
+	IncludeHidden bool   // admin-only: also return items tagged "hidden"
+	Limit        int
+	Offset       int
 }
 
 // VideoList is a paginated list result.
@@ -118,6 +119,7 @@ func (s *Service) ListVideos(ctx context.Context, f ListFilter) (VideoList, erro
 		q := pgtype.Text{String: *f.Q, Valid: true}
 		listParams.Q, countParams.Q = q, q
 	}
+	listParams.ShowHidden, countParams.ShowHidden = f.IncludeHidden, f.IncludeHidden
 
 	items, err := s.queries.ListVideos(ctx, listParams)
 	if err != nil {
@@ -178,6 +180,7 @@ func (s *Service) ListArticles(ctx context.Context, f ListFilter) (ArticleList, 
 		q := pgtype.Text{String: *f.Q, Valid: true}
 		listParams.Q, countParams.Q = q, q
 	}
+	listParams.ShowHidden, countParams.ShowHidden = f.IncludeHidden, f.IncludeHidden
 
 	items, err := s.queries.ListArticles(ctx, listParams)
 	if err != nil {
@@ -244,6 +247,7 @@ func (s *Service) ListQuizzes(ctx context.Context, f ListFilter) (QuizList, erro
 		q := pgtype.Text{String: *f.Q, Valid: true}
 		listParams.Q, countParams.Q = q, q
 	}
+	listParams.ShowHidden, countParams.ShowHidden = f.IncludeHidden, f.IncludeHidden
 
 	items, err := s.queries.ListQuizzes(ctx, listParams)
 	if err != nil {
@@ -440,6 +444,7 @@ func (s *Service) ListProblems(ctx context.Context, f ListFilter) (ProblemList, 
 		q := pgtype.Text{String: *f.Q, Valid: true}
 		listParams.Q, countParams.Q = q, q
 	}
+	listParams.ShowHidden, countParams.ShowHidden = f.IncludeHidden, f.IncludeHidden
 
 	items, err := s.queries.ListProblems(ctx, listParams)
 	if err != nil {
@@ -484,6 +489,7 @@ func (s *Service) ListProjects(ctx context.Context, f ListFilter) (ProjectList, 
 		q := pgtype.Text{String: *f.Q, Valid: true}
 		listParams.Q, countParams.Q = q, q
 	}
+	listParams.ShowHidden, countParams.ShowHidden = f.IncludeHidden, f.IncludeHidden
 
 	items, err := s.queries.ListProjects(ctx, listParams)
 	if err != nil {

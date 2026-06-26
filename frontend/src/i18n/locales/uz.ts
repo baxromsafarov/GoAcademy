@@ -270,6 +270,8 @@ export const uz: Resources = {
     addItem: "Element qo'shish",
     remove: "O'chirish",
     answersHidden: "Xavfsizlik uchun mavjud javoblar/yechimlar oldindan to'ldirilmaydi — o'zgartirish uchun qayta kiriting.",
+    hiddenToggle: "Yashirin (talabalarga ko'rsatilmaydi)",
+    hiddenBadge: "Yashirin",
   },
   dashboard: {
     title: "Boshqaruv",

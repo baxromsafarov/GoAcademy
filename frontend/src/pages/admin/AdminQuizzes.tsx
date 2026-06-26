@@ -13,6 +13,7 @@ export function AdminQuizzes() {
   const { t } = useTranslation()
   const lp = useListParams()
   const { data, isPending, isError } = useQuizzes({
+    show_hidden: true,
     q: lp.get("q") || undefined,
     difficulty: lp.get("difficulty") || undefined,
     language: lp.language || undefined,
@@ -66,6 +67,7 @@ export function AdminQuizzes() {
               <Meta>{q.language.toUpperCase()}</Meta>
             </>
           }
+          hidden={q.tags.includes("hidden")}
           deleting={remove.isPending}
           onDelete={() => {
             if (confirm(t("admin.confirmDelete"))) remove.mutate(q.id)

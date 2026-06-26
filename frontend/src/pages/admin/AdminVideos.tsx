@@ -21,6 +21,7 @@ export function AdminVideos() {
   const { get, language, offset, pageSize, page, setParam, setLanguage, setPage, setSize } =
     useListParams()
   const { data, isPending, isError } = useVideos({
+    show_hidden: true,
     q: get("q") || undefined,
     difficulty: get("difficulty") || undefined,
     language: language || undefined,
@@ -96,6 +97,7 @@ export function AdminVideos() {
                       <Meta>{v.language.toUpperCase()}</Meta>
                     </>
                   }
+                  hidden={v.tags.includes("hidden")}
                   deleting={remove.isPending}
                   onDelete={() => {
                     if (confirm(t("admin.confirmDelete"))) remove.mutate(v.id)

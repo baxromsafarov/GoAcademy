@@ -75,6 +75,7 @@ export interface VideoFilters extends PageFilter {
   tag?: string
   language?: string
   q?: string
+  show_hidden?: boolean
 }
 
 export function useVideos(filters: VideoFilters = {}) {
@@ -83,6 +84,7 @@ export function useVideos(filters: VideoFilters = {}) {
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
   if (filters.q) params.set("q", filters.q)
+  if (filters.show_hidden) params.set("show_hidden", "true")
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
@@ -118,6 +120,7 @@ export interface ArticleFilters extends PageFilter {
   tag?: string
   language?: string
   q?: string
+  show_hidden?: boolean
 }
 
 export function useArticles(filters: ArticleFilters = {}) {
@@ -126,6 +129,7 @@ export function useArticles(filters: ArticleFilters = {}) {
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
   if (filters.q) params.set("q", filters.q)
+  if (filters.show_hidden) params.set("show_hidden", "true")
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
@@ -167,6 +171,7 @@ export interface QuizFilters extends PageFilter {
   tag?: string
   language?: string
   q?: string
+  show_hidden?: boolean
 }
 
 export function useQuizzes(filters: QuizFilters = {}) {
@@ -175,6 +180,7 @@ export function useQuizzes(filters: QuizFilters = {}) {
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
   if (filters.q) params.set("q", filters.q)
+  if (filters.show_hidden) params.set("show_hidden", "true")
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
@@ -204,6 +210,7 @@ export interface ProblemFilters extends PageFilter {
   tag?: string
   language?: string
   q?: string
+  show_hidden?: boolean
 }
 
 export function useProblems(filters: ProblemFilters = {}) {
@@ -212,6 +219,7 @@ export function useProblems(filters: ProblemFilters = {}) {
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
   if (filters.q) params.set("q", filters.q)
+  if (filters.show_hidden) params.set("show_hidden", "true")
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({
@@ -366,6 +374,7 @@ export interface ProjectFilters extends PageFilter {
   tag?: string
   language?: string
   q?: string
+  show_hidden?: boolean
 }
 
 export function useProjects(filters: ProjectFilters = {}) {
@@ -374,6 +383,7 @@ export function useProjects(filters: ProjectFilters = {}) {
   if (filters.tag) params.set("tag", filters.tag)
   if (filters.language) params.set("language", filters.language)
   if (filters.q) params.set("q", filters.q)
+  if (filters.show_hidden) params.set("show_hidden", "true")
   appendPage(params, filters)
   const qs = params.toString()
   return useQuery({

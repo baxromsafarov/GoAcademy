@@ -6,7 +6,7 @@ import { useProject, useSaveProject, type AdminProjectInput } from "@/lib/querie
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select } from "@/components/ui/select"
-import { AdminFormShell, Field, TextArea } from "@/components/admin/AdminFormShell"
+import { AdminFormShell, Field, TextArea, VisibilityField } from "@/components/admin/AdminFormShell"
 
 const langOptions = ["ru", "en", "uz", "ja"].map((l) => ({ value: l, label: l.toUpperCase() }))
 const diffs = ["beginner", "intermediate", "advanced"]
@@ -102,6 +102,7 @@ export function ProjectForm() {
           placeholder={t("admin.tagsHint")}
         />
       </Field>
+      <VisibilityField tags={value.tags} onChange={(tags) => set("tags", tags)} />
 
       <div className="flex flex-col gap-2">
         <span className="text-sm font-medium">{t("admin.fSteps")}</span>

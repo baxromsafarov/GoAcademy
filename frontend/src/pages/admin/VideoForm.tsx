@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select } from "@/components/ui/select"
+import { VisibilityField } from "@/components/admin/AdminFormShell"
 
 const difficulties = ["beginner", "intermediate", "advanced"]
 const langs = ["ru", "en", "uz", "ja"]
@@ -118,6 +119,7 @@ export function VideoForm() {
             placeholder={t("admin.tagsHint")}
           />
         </Field>
+        <VisibilityField tags={value.tags} onChange={(tags) => set("tags", tags)} />
 
         <div className="flex items-center gap-3">
           <Button type="submit" disabled={save.isPending}>
