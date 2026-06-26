@@ -290,6 +290,8 @@ export const en = {
     saved: "Saved",
     noTracks: "You haven't followed any tracks yet.",
     noSaved: "Nothing saved yet.",
+    recent: "Recently completed",
+    noRecent: "Finish a lesson and it shows up here.",
   },
   auth: {
     signIn: "Sign in",

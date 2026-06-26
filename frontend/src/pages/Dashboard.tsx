@@ -9,6 +9,7 @@ import {
   FolderKanban,
   Flame,
   HelpCircle,
+  ListChecks,
   Route,
   TrendingUp,
   Trophy,
@@ -26,6 +27,7 @@ import {
   useLeaderboard,
   useMyTracks,
   useProgressSummary,
+  useRecentCompletions,
   useStats,
 } from "@/lib/queries"
 import { contentPath } from "@/lib/contentPath"
@@ -42,6 +44,13 @@ function levelProgress(totalXp: number, level: number) {
   return { pct, toNext: Math.max(0, nextStart - totalXp) }
 }
 
+const recentIcon: Record<string, LucideIcon> = {
+  video: Video,
+  article: FileText,
+  quiz: ListChecks,
+  problem: Code2,
+}
+
 export function Dashboard() {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -52,6 +61,7 @@ export function Dashboard() {
   const leaderboard = useLeaderboard("all", 100)
   const myTracks = useMyTracks()
   const bookmarks = useBookmarks()
+  const recent = useRecentCompletions()
   const rank = leaderboard.data?.entries.find((e) => e.user_id === user?.id)?.rank
 
   return (
@@ -235,6 +245,34 @@ export function Dashboard() {
             ))}
         </Card>
       </div>
+
+      {/* Recently completed content */}
+      <Card>
+        <CardTitle>{t("dashboard.recent")}</CardTitle>
+        {recent.isPending && <div className="mt-3 h-20 animate-pulse rounded bg-muted" />}
+        {recent.data &&
+          (recent.data.items.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">{t("dashboard.noRecent")}</p>
+          ) : (
+            <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {recent.data.items.map((it) => {
+                const Icon = recentIcon[it.content_type] ?? FileText
+                return (
+                  <li key={`${it.content_type}:${it.content_id}`}>
+                    <Link
+                      to={contentPath(it.content_type, it.content_id)}
+                      className="flex items-center gap-2.5 rounded-lg border bg-card p-2.5 text-sm transition-colors hover:border-primary/50"
+                    >
+                      <Icon className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="flex-1 truncate">{it.title}</span>
+                      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          ))}
+      </Card>
 
       {/* activity heatmap */}
       <Card>

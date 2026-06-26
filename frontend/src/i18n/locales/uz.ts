@@ -292,6 +292,8 @@ export const uz: Resources = {
     saved: "Saqlangan",
     noTracks: "Siz hali hech qaysi trekka yozilmagansiz.",
     noSaved: "Hozircha hech narsa saqlanmagan.",
+    recent: "Yaqinda tugatilgan",
+    noRecent: "Darsni tugating — u shu yerda paydo bo'ladi.",
   },
   auth: {
     signIn: "Kirish",

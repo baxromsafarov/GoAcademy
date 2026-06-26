@@ -396,6 +396,17 @@ export interface BookmarksResponse {
   bookmarks: Bookmark[]
 }
 
+export interface RecentCompletion {
+  content_type: string
+  content_id: string
+  title: string
+  completed_at: string
+}
+
+export interface RecentCompletionsResponse {
+  items: RecentCompletion[]
+}
+
 export interface AdminUser {
   id: string
   email: string

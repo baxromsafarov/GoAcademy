@@ -292,6 +292,8 @@ export const ja: Resources = {
     saved: "保存済み",
     noTracks: "まだトラックを受講していません。",
     noSaved: "まだ保存されていません。",
+    recent: "最近完了した項目",
+    noRecent: "レッスンを完了するとここに表示されます。",
   },
   auth: {
     signIn: "ログイン",

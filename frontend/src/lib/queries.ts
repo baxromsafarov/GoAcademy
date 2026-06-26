@@ -30,6 +30,7 @@ import type {
   ProblemListResponse,
   ProblemSubmissionResult,
   ProgressSummary,
+  RecentCompletionsResponse,
   ProjectDetail,
   ProjectListResponse,
   ProjectProgress,
@@ -302,6 +303,14 @@ export function useMyTracks() {
   return useQuery({
     queryKey: ["me", "tracks"],
     queryFn: () => api.get<TrackListResponse>("/me/tracks"),
+  })
+}
+
+/** The user's most recently finished content (watched/read/passed/solved). */
+export function useRecentCompletions() {
+  return useQuery({
+    queryKey: ["me", "recent"],
+    queryFn: () => api.get<RecentCompletionsResponse>("/me/recent"),
   })
 }
 
