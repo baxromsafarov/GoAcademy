@@ -141,6 +141,12 @@ func NewRouter(deps Deps) http.Handler {
 			if deps.Progress != nil && deps.Tokens != nil {
 				r.With(RequireAuth(deps.Tokens, deps.Logger)).Get("/tracks/{id}/progress", th.getProgress)
 			}
+			if deps.Tokens != nil {
+				auth := RequireAuth(deps.Tokens, deps.Logger)
+				r.With(auth).Post("/tracks/{id}/enroll", th.enroll)
+				r.With(auth).Delete("/tracks/{id}/enroll", th.unenroll)
+				r.With(auth).Get("/me/tracks", th.myTracks)
+			}
 
 			rh := newReferenceHandler(deps.Content, deps.Logger)
 			r.Get("/cheatsheets", rh.listCheatsheets)

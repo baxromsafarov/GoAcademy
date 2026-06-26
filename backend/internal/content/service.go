@@ -610,6 +610,43 @@ func (s *Service) GetTrackDetail(ctx context.Context, id string) (TrackDetail, e
 	return TrackDetail{Track: track, Items: items}, nil
 }
 
+// EnrollTrack opts the user into a track so it surfaces on their dashboard. It
+// is idempotent — enrolling twice is a no-op.
+func (s *Service) EnrollTrack(ctx context.Context, userID, trackID string) error {
+	uid, err := pgxutil.ParseUUID(userID)
+	if err != nil {
+		return apierr.Validation("invalid user")
+	}
+	tid, err := pgxutil.ParseUUID(trackID)
+	if err != nil {
+		return apierr.NotFound("track not found")
+	}
+	return s.queries.EnrollTrack(ctx, store.EnrollTrackParams{UserID: uid, TrackID: tid})
+}
+
+// UnenrollTrack removes the user's enrollment in a track.
+func (s *Service) UnenrollTrack(ctx context.Context, userID, trackID string) error {
+	uid, err := pgxutil.ParseUUID(userID)
+	if err != nil {
+		return apierr.Validation("invalid user")
+	}
+	tid, err := pgxutil.ParseUUID(trackID)
+	if err != nil {
+		return apierr.NotFound("track not found")
+	}
+	_, err = s.queries.UnenrollTrack(ctx, store.UnenrollTrackParams{UserID: uid, TrackID: tid})
+	return err
+}
+
+// ListEnrolledTracks returns the tracks the user enrolled in, most recent first.
+func (s *Service) ListEnrolledTracks(ctx context.Context, userID string) ([]store.Track, error) {
+	uid, err := pgxutil.ParseUUID(userID)
+	if err != nil {
+		return nil, apierr.Validation("invalid user")
+	}
+	return s.queries.ListEnrolledTracks(ctx, uid)
+}
+
 // GetQuizDetail returns a quiz with its questions and options (ordered).
 func (s *Service) GetQuizDetail(ctx context.Context, id string) (QuizDetail, error) {
 	uid, err := pgxutil.ParseUUID(id)

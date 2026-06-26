@@ -499,6 +499,12 @@ type Track struct {
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }
 
+type TrackEnrollment struct {
+	UserID    pgtype.UUID        `json:"user_id"`
+	TrackID   pgtype.UUID        `json:"track_id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
 type TrackItem struct {
 	ID          pgtype.UUID      `json:"id"`
 	TrackID     pgtype.UUID      `json:"track_id"`

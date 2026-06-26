@@ -68,3 +68,48 @@ func (h *trackHandler) getProgress(w http.ResponseWriter, r *http.Request) {
 	}
 	respond.JSON(w, http.StatusOK, toTrackProgressResponse(res))
 }
+
+// enroll handles POST /api/v1/tracks/{id}/enroll.
+func (h *trackHandler) enroll(w http.ResponseWriter, r *http.Request) {
+	uid, ok := UserIDFromContext(r.Context())
+	if !ok {
+		respond.Error(w, r, h.logger, apierr.Unauthorized("authentication required"))
+		return
+	}
+	if err := h.svc.EnrollTrack(r.Context(), uid, chi.URLParam(r, "id")); err != nil {
+		respond.Error(w, r, h.logger, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// unenroll handles DELETE /api/v1/tracks/{id}/enroll.
+func (h *trackHandler) unenroll(w http.ResponseWriter, r *http.Request) {
+	uid, ok := UserIDFromContext(r.Context())
+	if !ok {
+		respond.Error(w, r, h.logger, apierr.Unauthorized("authentication required"))
+		return
+	}
+	if err := h.svc.UnenrollTrack(r.Context(), uid, chi.URLParam(r, "id")); err != nil {
+		respond.Error(w, r, h.logger, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// myTracks handles GET /api/v1/me/tracks — the tracks the user enrolled in.
+func (h *trackHandler) myTracks(w http.ResponseWriter, r *http.Request) {
+	uid, ok := UserIDFromContext(r.Context())
+	if !ok {
+		respond.Error(w, r, h.logger, apierr.Unauthorized("authentication required"))
+		return
+	}
+	tracks, err := h.svc.ListEnrolledTracks(r.Context(), uid)
+	if err != nil {
+		respond.Error(w, r, h.logger, err)
+		return
+	}
+	respond.JSON(w, http.StatusOK, toTrackListResponse(content.TrackList{
+		Items: tracks, Total: int64(len(tracks)), Limit: len(tracks),
+	}))
+}
