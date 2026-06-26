@@ -31,6 +31,7 @@ func (h *quizHandler) list(w http.ResponseWriter, r *http.Request) {
 		Difficulty: optionalQuery(q, "difficulty"),
 		Tag:        optionalQuery(q, "tag"),
 		Language:   optionalQuery(q, "language"),
+		Q:          optionalQuery(q, "q"),
 		Limit:      queryInt(q, "limit", 0),
 		Offset:     queryInt(q, "offset", 0),
 	}

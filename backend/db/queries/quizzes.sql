@@ -3,6 +3,7 @@ SELECT * FROM quizzes
 WHERE (sqlc.narg('difficulty')::difficulty IS NULL OR difficulty = sqlc.narg('difficulty'))
   AND (sqlc.narg('language')::locale     IS NULL OR language = sqlc.narg('language'))
   AND (sqlc.narg('tag')::text            IS NULL OR sqlc.narg('tag') = ANY(tags))
+  AND (sqlc.narg('q')::text              IS NULL OR title ILIKE '%' || sqlc.narg('q') || '%')
 ORDER BY created_at DESC
 LIMIT sqlc.arg('lim') OFFSET sqlc.arg('off');
 
@@ -10,7 +11,8 @@ LIMIT sqlc.arg('lim') OFFSET sqlc.arg('off');
 SELECT count(*) FROM quizzes
 WHERE (sqlc.narg('difficulty')::difficulty IS NULL OR difficulty = sqlc.narg('difficulty'))
   AND (sqlc.narg('language')::locale     IS NULL OR language = sqlc.narg('language'))
-  AND (sqlc.narg('tag')::text            IS NULL OR sqlc.narg('tag') = ANY(tags));
+  AND (sqlc.narg('tag')::text            IS NULL OR sqlc.narg('tag') = ANY(tags))
+  AND (sqlc.narg('q')::text              IS NULL OR title ILIKE '%' || sqlc.narg('q') || '%');
 
 -- name: GetQuizByID :one
 SELECT * FROM quizzes WHERE id = $1;

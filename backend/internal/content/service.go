@@ -239,6 +239,10 @@ func (s *Service) ListQuizzes(ctx context.Context, f ListFilter) (QuizList, erro
 		t := pgtype.Text{String: *f.Tag, Valid: true}
 		listParams.Tag, countParams.Tag = t, t
 	}
+	if f.Q != nil {
+		q := pgtype.Text{String: *f.Q, Valid: true}
+		listParams.Q, countParams.Q = q, q
+	}
 
 	items, err := s.queries.ListQuizzes(ctx, listParams)
 	if err != nil {
@@ -431,6 +435,10 @@ func (s *Service) ListProblems(ctx context.Context, f ListFilter) (ProblemList, 
 		t := pgtype.Text{String: *f.Tag, Valid: true}
 		listParams.Tag, countParams.Tag = t, t
 	}
+	if f.Q != nil {
+		q := pgtype.Text{String: *f.Q, Valid: true}
+		listParams.Q, countParams.Q = q, q
+	}
 
 	items, err := s.queries.ListProblems(ctx, listParams)
 	if err != nil {
@@ -470,6 +478,10 @@ func (s *Service) ListProjects(ctx context.Context, f ListFilter) (ProjectList, 
 	if f.Tag != nil {
 		t := pgtype.Text{String: *f.Tag, Valid: true}
 		listParams.Tag, countParams.Tag = t, t
+	}
+	if f.Q != nil {
+		q := pgtype.Text{String: *f.Q, Valid: true}
+		listParams.Q, countParams.Q = q, q
 	}
 
 	items, err := s.queries.ListProjects(ctx, listParams)
@@ -555,6 +567,10 @@ func (s *Service) ListTracks(ctx context.Context, f ListFilter) (TrackList, erro
 	if f.Language != nil {
 		l := store.NullLocale{Locale: store.Locale(*f.Language), Valid: true}
 		listParams.Language, countParams.Language = l, l
+	}
+	if f.Q != nil {
+		q := pgtype.Text{String: *f.Q, Valid: true}
+		listParams.Q, countParams.Q = q, q
 	}
 
 	items, err := s.queries.ListTracks(ctx, listParams)

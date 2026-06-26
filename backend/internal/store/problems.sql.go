@@ -16,16 +16,23 @@ SELECT count(*) FROM problems
 WHERE ($1::difficulty IS NULL OR difficulty = $1)
   AND ($2::locale     IS NULL OR language = $2)
   AND ($3::text            IS NULL OR $3 = ANY(tags))
+  AND ($4::text              IS NULL OR title ILIKE '%' || $4 || '%')
 `
 
 type CountProblemsParams struct {
 	Difficulty NullDifficulty `json:"difficulty"`
 	Language   NullLocale     `json:"language"`
 	Tag        pgtype.Text    `json:"tag"`
+	Q          pgtype.Text    `json:"q"`
 }
 
 func (q *Queries) CountProblems(ctx context.Context, arg CountProblemsParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countProblems, arg.Difficulty, arg.Language, arg.Tag)
+	row := q.db.QueryRow(ctx, countProblems,
+		arg.Difficulty,
+		arg.Language,
+		arg.Tag,
+		arg.Q,
+	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -59,14 +66,16 @@ SELECT id, title, slug, statement_markdown, difficulty, reference_solution_markd
 WHERE ($1::difficulty IS NULL OR difficulty = $1)
   AND ($2::locale     IS NULL OR language = $2)
   AND ($3::text            IS NULL OR $3 = ANY(tags))
+  AND ($4::text              IS NULL OR title ILIKE '%' || $4 || '%')
 ORDER BY created_at DESC
-LIMIT $5 OFFSET $4
+LIMIT $6 OFFSET $5
 `
 
 type ListProblemsParams struct {
 	Difficulty NullDifficulty `json:"difficulty"`
 	Language   NullLocale     `json:"language"`
 	Tag        pgtype.Text    `json:"tag"`
+	Q          pgtype.Text    `json:"q"`
 	Off        int32          `json:"off"`
 	Lim        int32          `json:"lim"`
 }
@@ -76,6 +85,7 @@ func (q *Queries) ListProblems(ctx context.Context, arg ListProblemsParams) ([]P
 		arg.Difficulty,
 		arg.Language,
 		arg.Tag,
+		arg.Q,
 		arg.Off,
 		arg.Lim,
 	)

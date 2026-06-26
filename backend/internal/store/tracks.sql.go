@@ -15,15 +15,17 @@ const countTracks = `-- name: CountTracks :one
 SELECT count(*) FROM tracks
 WHERE ($1::difficulty IS NULL OR level = $1)
   AND ($2::locale  IS NULL OR language = $2)
+  AND ($3::text           IS NULL OR title ILIKE '%' || $3 || '%')
 `
 
 type CountTracksParams struct {
 	Level    NullDifficulty `json:"level"`
 	Language NullLocale     `json:"language"`
+	Q        pgtype.Text    `json:"q"`
 }
 
 func (q *Queries) CountTracks(ctx context.Context, arg CountTracksParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countTracks, arg.Level, arg.Language)
+	row := q.db.QueryRow(ctx, countTracks, arg.Level, arg.Language, arg.Q)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -83,13 +85,15 @@ const listTracks = `-- name: ListTracks :many
 SELECT id, title, description, level, position, language, created_at, updated_at FROM tracks
 WHERE ($1::difficulty IS NULL OR level = $1)
   AND ($2::locale  IS NULL OR language = $2)
+  AND ($3::text           IS NULL OR title ILIKE '%' || $3 || '%')
 ORDER BY position, created_at DESC
-LIMIT $4 OFFSET $3
+LIMIT $5 OFFSET $4
 `
 
 type ListTracksParams struct {
 	Level    NullDifficulty `json:"level"`
 	Language NullLocale     `json:"language"`
+	Q        pgtype.Text    `json:"q"`
 	Off      int32          `json:"off"`
 	Lim      int32          `json:"lim"`
 }
@@ -98,6 +102,7 @@ func (q *Queries) ListTracks(ctx context.Context, arg ListTracksParams) ([]Track
 	rows, err := q.db.Query(ctx, listTracks,
 		arg.Level,
 		arg.Language,
+		arg.Q,
 		arg.Off,
 		arg.Lim,
 	)

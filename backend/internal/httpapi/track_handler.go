@@ -31,6 +31,7 @@ func (h *trackHandler) list(w http.ResponseWriter, r *http.Request) {
 	filter := content.ListFilter{
 		Difficulty: optionalQuery(q, "difficulty"),
 		Language:   optionalQuery(q, "language"),
+		Q:          optionalQuery(q, "q"),
 		Limit:      queryInt(q, "limit", 0),
 		Offset:     queryInt(q, "offset", 0),
 	}
