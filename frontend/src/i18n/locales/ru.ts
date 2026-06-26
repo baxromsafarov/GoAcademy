@@ -63,6 +63,7 @@ export const ru: Resources = {
   sandbox: {
     run: "Запустить",
     running: "Выполнение…",
+    reset: "Сбросить",
     code: "Код",
     stdin: "Стандартный ввод",
     stdinHint: "Необязательный ввод, передаваемый программе",

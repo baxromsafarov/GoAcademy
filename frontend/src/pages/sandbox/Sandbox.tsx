@@ -1,9 +1,10 @@
-import { lazy, Suspense, useState } from "react"
+import { lazy, Suspense, useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { Play, Clock } from "lucide-react"
+import { Play, RotateCcw } from "lucide-react"
 import { useRunSandbox } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
+import { SandboxOutput } from "@/components/SandboxOutput"
 
 // CodeEditor pulls in highlight.js — keep it out of the initial bundle.
 const CodeEditor = lazy(() =>
@@ -19,32 +20,53 @@ func main() {
 }
 `
 
+// Persist the editor between visits so a student's work survives navigation and
+// reloads; they can reset to the starter template whenever they like.
+const STORAGE_KEY = "sandbox.code"
+
 export function Sandbox() {
   const { t } = useTranslation()
   const location = useLocation()
   const initial = (location.state as { code?: string } | null)?.code
-  const [source, setSource] = useState(initial && initial.trim() ? initial : template)
+  const [source, setSource] = useState(() => {
+    if (initial && initial.trim()) return initial // arrived via "open in sandbox"
+    const saved = localStorage.getItem(STORAGE_KEY)
+    return saved && saved.trim() ? saved : template
+  })
   const [stdin, setStdin] = useState("")
   const run = useRunSandbox()
   const result = run.data
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, source)
+  }, [source])
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold tracking-tight">{t("nav.sandbox")}</h1>
-        <Button onClick={() => run.mutate({ source, stdin })} disabled={run.isPending || !source.trim()}>
-          <Play className="size-4" />
-          {run.isPending ? t("sandbox.running") : t("sandbox.run")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setSource(template)}
+            disabled={source === template}
+            title={t("sandbox.reset")}
+          >
+            <RotateCcw className="size-4" />
+            <span className="hidden sm:inline">{t("sandbox.reset")}</span>
+          </Button>
+          <Button onClick={() => run.mutate({ source, stdin })} disabled={run.isPending || !source.trim()}>
+            <Play className="size-4" />
+            {run.isPending ? t("sandbox.running") : t("sandbox.run")}
+          </Button>
+        </div>
       </div>
       <p className="text-sm text-muted-foreground">{t("sandbox.stdlibNote")}</p>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="flex flex-col gap-2">
           <span className="text-sm font-medium">{t("sandbox.code")}</span>
-          <Suspense
-            fallback={<div className="h-[28rem] w-full animate-pulse rounded-lg bg-muted" />}
-          >
+          <Suspense fallback={<div className="h-[28rem] w-full animate-pulse rounded-lg bg-muted" />}>
             <CodeEditor
               value={source}
               onChange={setSource}
@@ -72,73 +94,13 @@ export function Sandbox() {
           <div className="min-h-[18rem] rounded-md border bg-card p-3 text-sm">
             {run.isPending && <p className="text-muted-foreground">{t("sandbox.running")}</p>}
             {run.isError && <p className="text-red-500">{t("sandbox.unavailable")}</p>}
-            {result && (
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  {result.compile_error && <Badge tone="red">{t("sandbox.compileError")}</Badge>}
-                  {result.timed_out && <Badge tone="amber">{t("sandbox.timedOut")}</Badge>}
-                  {result.oom_killed && <Badge tone="amber">{t("sandbox.oom")}</Badge>}
-                  {!result.compile_error && !result.timed_out && (
-                    <Badge tone={result.exit_code === 0 ? "green" : "red"}>
-                      {t("sandbox.exit", { code: result.exit_code })}
-                    </Badge>
-                  )}
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <Clock className="size-3" /> {result.duration_ms} ms
-                  </span>
-                </div>
-
-                {result.stdout && (
-                  <Stream label="stdout" text={result.stdout} truncated={result.stdout_truncated} />
-                )}
-                {result.stderr && (
-                  <Stream label="stderr" text={result.stderr} truncated={result.stderr_truncated} red />
-                )}
-                {!result.stdout && !result.stderr && (
-                  <p className="text-muted-foreground">{t("sandbox.noOutput")}</p>
-                )}
-              </div>
-            )}
+            {result && <SandboxOutput result={result} />}
             {!run.isPending && !run.isError && !result && (
               <p className="text-muted-foreground">{t("sandbox.empty")}</p>
             )}
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-function Badge({ tone, children }: { tone: "green" | "red" | "amber"; children: React.ReactNode }) {
-  const tones = {
-    green: "border-green-500/40 bg-green-500/10 text-green-600 dark:text-green-400",
-    red: "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400",
-    amber: "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400",
-  }
-  return <span className={`rounded border px-1.5 py-0.5 ${tones[tone]}`}>{children}</span>
-}
-
-function Stream({
-  label,
-  text,
-  truncated,
-  red,
-}: {
-  label: string
-  text: string
-  truncated: boolean
-  red?: boolean
-}) {
-  const { t } = useTranslation()
-  return (
-    <div>
-      <div className="mb-1 text-xs text-muted-foreground">
-        {label}
-        {truncated && <span className="ml-1 text-amber-600 dark:text-amber-400">({t("sandbox.truncated")})</span>}
-      </div>
-      <pre className={`overflow-x-auto rounded bg-muted p-2 font-mono text-xs ${red ? "text-red-600 dark:text-red-400" : ""}`}>
-        {text}
-      </pre>
     </div>
   )
 }

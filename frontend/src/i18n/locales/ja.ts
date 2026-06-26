@@ -63,6 +63,7 @@ export const ja: Resources = {
   sandbox: {
     run: "実行",
     running: "実行中…",
+    reset: "リセット",
     code: "コード",
     stdin: "標準入力",
     stdinHint: "プログラムに渡す任意の入力",

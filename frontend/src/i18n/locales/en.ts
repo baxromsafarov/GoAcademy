@@ -61,6 +61,7 @@ export const en = {
   sandbox: {
     run: "Run",
     running: "Running…",
+    reset: "Reset",
     code: "Code",
     stdin: "Standard input",
     stdinHint: "Optional input passed to the program",

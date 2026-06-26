@@ -63,6 +63,7 @@ export const uz: Resources = {
   sandbox: {
     run: "Ishga tushirish",
     running: "Bajarilmoqda…",
+    reset: "Tiklash",
     code: "Kod",
     stdin: "Standart kirish",
     stdinHint: "Dasturga uzatiladigan ixtiyoriy kirish",
