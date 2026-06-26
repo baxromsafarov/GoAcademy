@@ -214,6 +214,7 @@ export const ja: Resources = {
   dashboard: {
     title: "ダッシュボード",
     welcome: "GoAcademy へようこそ — 初心者から自信のある開発者まで Go を学びましょう。",
+    greeting: "こんにちは、{{name}}さん",
     xp: "XP",
     level: "レベル",
     currentStreak: "現在の連続",
@@ -224,6 +225,8 @@ export const ja: Resources = {
     noBadges: "バッジはまだありません。",
     activity: "アクティビティ",
     activityCount: "{{n}} 件のアクティビティ",
+    levelProgress: "レベル {{level}} まで {{xp}} XP",
+    maxLevel: "最高レベルに到達",
   },
   auth: {
     signIn: "ログイン",

@@ -214,6 +214,7 @@ export const ru: Resources = {
   dashboard: {
     title: "Кабинет",
     welcome: "Добро пожаловать в GoAcademy — изучайте Go от новичка до уверенного разработчика.",
+    greeting: "Привет, {{name}}",
     xp: "XP",
     level: "Уровень",
     currentStreak: "Текущая серия",
@@ -224,6 +225,8 @@ export const ru: Resources = {
     noBadges: "Пока нет бейджей.",
     activity: "Активность",
     activityCount: "активностей: {{n}}",
+    levelProgress: "{{xp}} XP до уровня {{level}}",
+    maxLevel: "Достигнут максимальный уровень",
   },
   auth: {
     signIn: "Войти",

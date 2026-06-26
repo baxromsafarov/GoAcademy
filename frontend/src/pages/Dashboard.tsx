@@ -1,10 +1,36 @@
 import { useTranslation } from "react-i18next"
+import {
+  Award,
+  Code2,
+  FileText,
+  FolderKanban,
+  Flame,
+  HelpCircle,
+  TrendingUp,
+  Video,
+  Zap,
+  type LucideIcon,
+} from "lucide-react"
 import { Card, CardTitle } from "@/components/ui/card"
 import { ActivityHeatmap } from "@/components/ActivityHeatmap"
+import { useAuth } from "@/lib/auth-context"
 import { useActivity, useBadges, useProgressSummary, useStats } from "@/lib/queries"
+import { cn } from "@/lib/utils"
+
+/** Mirrors the backend curve level = 1 + floor(sqrt(xp/100)); level L starts at
+ * 100*(L-1)^2 XP. Returns how far into the current level the user is. */
+function levelProgress(totalXp: number, level: number) {
+  const base = 100
+  const curStart = base * (level - 1) ** 2
+  const nextStart = base * level ** 2
+  const span = nextStart - curStart
+  const pct = span > 0 ? Math.min(100, Math.max(0, ((totalXp - curStart) / span) * 100)) : 0
+  return { pct, toNext: Math.max(0, nextStart - totalXp) }
+}
 
 export function Dashboard() {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const stats = useStats()
   const progress = useProgressSummary()
   const badges = useBadges()
@@ -13,26 +39,72 @@ export function Dashboard() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("dashboard.title")}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          {user ? t("dashboard.greeting", { name: user.display_name }) : t("dashboard.title")}
+        </h1>
         <p className="mt-1 text-muted-foreground">{t("dashboard.welcome")}</p>
       </div>
 
-      {/* XP / level / streaks */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {/* Level banner with progress to the next level */}
+      {stats.isPending && <Card className="h-28 animate-pulse" />}
+      {stats.data &&
+        (() => {
+          const { pct, toNext } = levelProgress(stats.data.total_xp, stats.data.level)
+          return (
+            <Card className="flex flex-col gap-3 border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-5">
+              <div className="flex items-center gap-4">
+                <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                  <TrendingUp className="size-7" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm text-muted-foreground">{t("dashboard.level")}</div>
+                  <div className="text-3xl font-bold tracking-tight">{stats.data.level}</div>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center justify-end gap-1 text-2xl font-bold text-primary">
+                    <Zap className="size-5" />
+                    {stats.data.total_xp}
+                  </div>
+                  <div className="text-xs text-muted-foreground">{t("dashboard.xp")}</div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.levelProgress", { xp: toNext, level: stats.data.level + 1 })}
+                </p>
+              </div>
+            </Card>
+          )
+        })()}
+
+      {/* Streak stats */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {stats.isPending &&
-          [0, 1, 2, 3].map((i) => <Card key={i} className="h-[5.5rem] animate-pulse" />)}
-        {stats.isError && (
-          <p className="col-span-full text-sm text-red-500">{t("common.error")}</p>
-        )}
+          [0, 1, 2].map((i) => <Card key={i} className="h-[5.5rem] animate-pulse" />)}
+        {stats.isError && <p className="col-span-full text-sm text-red-500">{t("common.error")}</p>}
         {stats.data && (
           <>
-            <Stat label={t("dashboard.xp")} value={stats.data.total_xp} />
-            <Stat label={t("dashboard.level")} value={stats.data.level} />
             <Stat
+              icon={Zap}
+              tone="amber"
+              label={t("dashboard.xp")}
+              value={stats.data.total_xp}
+            />
+            <Stat
+              icon={Flame}
+              tone="orange"
               label={t("dashboard.currentStreak")}
               value={`${stats.data.current_streak} ${t("dashboard.days")}`}
             />
             <Stat
+              icon={Award}
+              tone="emerald"
               label={t("dashboard.longestStreak")}
               value={`${stats.data.longest_streak} ${t("dashboard.days")}`}
             />
@@ -47,12 +119,12 @@ export function Dashboard() {
           {progress.isPending && <div className="mt-3 h-28 animate-pulse rounded bg-muted" />}
           {progress.isError && <p className="mt-2 text-sm text-red-500">{t("common.error")}</p>}
           {progress.data && (
-            <ul className="mt-3 flex flex-col gap-2 text-sm">
-              <ProgressRow label={t("nav.videos")} value={progress.data.videos_completed} />
-              <ProgressRow label={t("nav.articles")} value={progress.data.articles_read} />
-              <ProgressRow label={t("nav.quizzes")} value={progress.data.quizzes_passed} />
-              <ProgressRow label={t("nav.problems")} value={progress.data.problems_solved} />
-              <ProgressRow label={t("nav.projects")} value={progress.data.projects_completed} />
+            <ul className="mt-3 flex flex-col gap-2.5 text-sm">
+              <ProgressRow icon={Video} label={t("nav.videos")} value={progress.data.videos_completed} />
+              <ProgressRow icon={FileText} label={t("nav.articles")} value={progress.data.articles_read} />
+              <ProgressRow icon={HelpCircle} label={t("nav.quizzes")} value={progress.data.quizzes_passed} />
+              <ProgressRow icon={Code2} label={t("nav.problems")} value={progress.data.problems_solved} />
+              <ProgressRow icon={FolderKanban} label={t("nav.projects")} value={progress.data.projects_completed} />
             </ul>
           )}
         </Card>
@@ -70,9 +142,11 @@ export function Dashboard() {
                   <div
                     key={b.code}
                     title={b.description}
-                    className="flex items-center gap-1 rounded-md border px-2 py-1 text-sm"
+                    className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-1.5 text-sm font-medium"
                   >
-                    <span aria-hidden>{b.icon}</span>
+                    <span className="text-base" aria-hidden>
+                      {b.icon}
+                    </span>
                     {b.title}
                   </div>
                 ))}
@@ -100,20 +174,42 @@ export function Dashboard() {
   )
 }
 
-function Stat({ label, value }: { label: string; value: number | string }) {
+const tones = {
+  amber: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+  orange: "bg-orange-500/15 text-orange-600 dark:text-orange-400",
+  emerald: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+}
+
+function Stat({
+  icon: Icon,
+  tone,
+  label,
+  value,
+}: {
+  icon: LucideIcon
+  tone: keyof typeof tones
+  label: string
+  value: number | string
+}) {
   return (
-    <Card>
-      <div className="text-sm text-muted-foreground">{label}</div>
-      <div className="mt-1 text-2xl font-semibold">{value}</div>
+    <Card className="flex items-center gap-3">
+      <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", tones[tone])}>
+        <Icon className="size-5" />
+      </div>
+      <div className="min-w-0">
+        <div className="truncate text-sm text-muted-foreground">{label}</div>
+        <div className="text-xl font-semibold">{value}</div>
+      </div>
     </Card>
   )
 }
 
-function ProgressRow({ label, value }: { label: string; value: number }) {
+function ProgressRow({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: number }) {
   return (
-    <li className="flex items-center justify-between">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value}</span>
+    <li className="flex items-center gap-2.5">
+      <Icon className="size-4 shrink-0 text-muted-foreground" />
+      <span className="flex-1 text-muted-foreground">{label}</span>
+      <span className="font-semibold tabular-nums">{value}</span>
     </li>
   )
 }

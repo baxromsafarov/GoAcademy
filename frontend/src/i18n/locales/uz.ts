@@ -214,6 +214,7 @@ export const uz: Resources = {
   dashboard: {
     title: "Boshqaruv",
     welcome: "GoAcademy'ga xush kelibsiz — Go tilini boshlangʻichdan ishonchli dasturchigacha oʻrganing.",
+    greeting: "Salom, {{name}}",
     xp: "XP",
     level: "Daraja",
     currentStreak: "Joriy seriya",
@@ -224,6 +225,8 @@ export const uz: Resources = {
     noBadges: "Hozircha nishonlar yoʻq.",
     activity: "Faollik",
     activityCount: "{{n}} ta faollik",
+    levelProgress: "{{level}}-darajagacha {{xp}} XP",
+    maxLevel: "Eng yuqori daraja",
   },
   auth: {
     signIn: "Kirish",

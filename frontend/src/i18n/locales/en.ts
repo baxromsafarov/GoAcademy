@@ -212,6 +212,7 @@ export const en = {
   dashboard: {
     title: "Dashboard",
     welcome: "Welcome to GoAcademy — learn Go from beginner to confident developer.",
+    greeting: "Hi, {{name}}",
     xp: "XP",
     level: "Level",
     currentStreak: "Current streak",
@@ -222,6 +223,8 @@ export const en = {
     noBadges: "No badges yet.",
     activity: "Activity",
     activityCount: "{{n}} activities",
+    levelProgress: "{{xp}} XP to level {{level}}",
+    maxLevel: "Top level reached",
   },
   auth: {
     signIn: "Sign in",
